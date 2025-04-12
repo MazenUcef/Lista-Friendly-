@@ -1,0 +1,43 @@
+@import "tailwindcss";
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
+
+
+
+
+
+
+.bold {
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.regular {
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 400 !important;
+}
+
+.light {
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 300 !important;
+}
+
+/* Change cursor for the entire document */
+/* html,
+body,
+a,
+button {
+    cursor: url('/path-to-your-leaf-cursor.png'), auto;
+} */
+
+/* Optional: Change cursor on hover for specific elements */
+/* a:hover,
+button:hover,
+.clickable:hover {
+    cursor: url('/path-to-your-leaf-cursor-hover.png'), pointer;
+} */
+
+/* In your global CSS */
+/* * {
+    cursor: none !important;
+} */
