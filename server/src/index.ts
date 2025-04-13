@@ -1,10 +1,13 @@
-import express, { Request, Response, Application } from 'express';
+import './utils/paths';
+import 'module-alias/register';
+import express, { Request, Response, Application, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import helmet from 'helmet'; // Added for security
 import morgan from 'morgan'; // Added for logging
+import authRoutes from './routes/AuthRoute'; // Added for logging
 
 const app: Application = express();
 
@@ -45,6 +48,8 @@ const connectDB = async (): Promise<void> => {
     }
 };
 
+app.use('/api/auth', authRoutes)
+
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
     res.status(200).json({ status: 'UP' });
@@ -56,9 +61,23 @@ app.get("/test", async (req: Request, res: Response<{ message: string }>) => {
 });
 
 // Error handling middleware (should be after all routes)
-app.use((err: Error, req: Request, res: Response) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Something went wrong!' });
+});
+
+interface CustomError extends Error {
+    statusCode?: number;
+}
+
+app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
+    res.status(statusCode).json({
+        success: false,
+        statusCode,
+        message
+    });
 });
 
 // Start server only after DB connection

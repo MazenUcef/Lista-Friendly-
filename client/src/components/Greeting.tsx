@@ -189,7 +189,7 @@ const Greeting = () => {
                 className=""
                 variants={rightItemVariants}
             >
-                <div className='w-[28rem] md:w-[38.313rem] h-[45.813rem] md:h-[42.625rem] bg-no-repeat relative'
+                <div className='w-[22rem] md:w-[38.313rem] h-[45.813rem] md:h-[42.625rem] bg-no-repeat relative'
                     style={{ backgroundImage: `url(${banner})` }}>
 
                     <div className="absolute inset-0 flex items-center justify-center perspective-1000">
@@ -204,7 +204,7 @@ const Greeting = () => {
                             <motion.img
                                 src={motionImages[currentImageIndex]}
                                 alt="Product showcase"
-                                className="object-contain flex justify-center items-center w-[19rem]"
+                                className="object-contain flex justify-center items-center ml-5 md:ml-0 w-[19rem]"
                                 whileHover={{ scale: 1.05 }}
                             />
                         </motion.div>

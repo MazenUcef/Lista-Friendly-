@@ -74,7 +74,7 @@ const Services = () => {
         >
             {/* Title */}
             <motion.div variants={itemVariants}>
-                <h1 className='text-3xl md:text-[36px] font-extrabold'>
+                <h1 className='text-2xl md:text-[36px] font-extrabold'>
                     Why Choose <span className="text-[#71BE63] font-extrabold">Friendly</span> ليسته ?
                 </h1>
             </motion.div>
