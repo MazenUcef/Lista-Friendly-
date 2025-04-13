@@ -2,9 +2,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { FaLeaf, FaUser, FaLock, FaEnvelope } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import logo from '../assets/images/logo.png';
-import { Link, useNavigate } from 'react-router';
-import { useSignUp } from '../api/AuthApi';
+import { Link, useLocation, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
+import { useSignUp } from '../api/authApi';
+import { useEffect } from 'react';
+import Oauth from '../components/Oauth';
 
 
 
@@ -17,7 +19,7 @@ type SignupFormData = {
 };
 
 const SignUp = () => {
-    const { control, handleSubmit, watch, formState: { errors } } = useForm<SignupFormData>({
+    const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<SignupFormData>({
         defaultValues: {
             name: '',
             email: '',
@@ -26,19 +28,28 @@ const SignUp = () => {
             agreeTerms: false
         }
     });
+    const location = useLocation();
     const { signup, authStatus } = useSignUp();
     const navigate = useNavigate();
     const password = watch('password');
 
+
+    useEffect(() => {
+        if (location.state) {
+            setValue('email', location.state);
+        }
+    }, [])
+
+
     const onSubmit = async (data: SignupFormData) => {
         try {
-            await signup({
+            const res = await signup({
                 fullName: data.name,
                 email: data.email,
                 password: data.password
             });
 
-            if (authStatus === 'succeeded') {
+            if (res) {
                 navigate('/signin');
             }
         } catch (error) {
@@ -211,7 +222,7 @@ const SignUp = () => {
                     {/* Submit Button with Loading State */}
                     <motion.button
                         type="submit"
-                        className="w-full cursor-pointer bg-[#71BE63] hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2"
+                        className="w-full cursor-pointer mb-3 bg-[#71BE63] hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         disabled={authStatus === 'loading'}
@@ -231,6 +242,7 @@ const SignUp = () => {
                             </>
                         )}
                     </motion.button>
+                    <Oauth />
 
                     <div className="mt-6 text-center">
                         <p className="text-gray-600">

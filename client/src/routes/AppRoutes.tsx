@@ -6,8 +6,10 @@ import SignUp from "../pages/SignUp"
 import Categories from "../pages/Categories"
 import Brands from "../pages/Brands"
 import BrandDetails from "../pages/BrandDetails"
-import Dashboard from "../pages/Dashboard"
 import AboutUs from "../pages/AboutUs"
+import DashboardLayOut from "../pages/DashboardLayOut"
+import Dashboard from "../pages/Dashboard"
+import Profile from "../pages/Profile"
 
 
 const AppRoutes = () => {
@@ -20,7 +22,11 @@ const AppRoutes = () => {
                     <Route path="/signin" element={<SignIn />} />
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/categories" element={<Categories />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<DashboardLayOut />} >
+                        <Route index element={<Dashboard />} />
+                        <Route path="/dashboard/manage" element={<Dashboard />} />
+                        <Route path="/dashboard/profile" element={<Profile />} />
+                    </Route>
                     <Route path="/brands" element={<Brands />} />
                     <Route path="/aboutus" element={<AboutUs />} />
                     <Route path="/brand-details/:id" element={<BrandDetails />} />

@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import helmet from 'helmet'; // Added for security
 import morgan from 'morgan'; // Added for logging
 import authRoutes from './routes/AuthRoute'; // Added for logging
+import userRoutes from './routes/UserRoute'; // Added for logging
 
 const app: Application = express();
 
@@ -49,6 +50,7 @@ const connectDB = async (): Promise<void> => {
 };
 
 app.use('/api/auth', authRoutes)
+app.use('/api/user', userRoutes)
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {

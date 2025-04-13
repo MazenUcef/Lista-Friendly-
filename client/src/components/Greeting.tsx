@@ -175,7 +175,7 @@ const Greeting = () => {
                     />
                 </motion.div>
 
-                <motion.div className="mt-16 absolute top-[35rem] hidden lg:flex" variants={fadeInUp}>
+                <motion.div className="mt-16 absolute top-[35rem] hidden xl:flex" variants={fadeInUp}>
                     <img
                         src={lamp}
                         alt="lamp"
