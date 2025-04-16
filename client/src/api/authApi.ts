@@ -1,4 +1,4 @@
-import { googleAuth, GoogleAuthData, signinUser, signoutUser, signupUser, UserCredentials, UserRegistration } from "../redux/authSlice";
+import { deleteUser, googleAuth, GoogleAuthData, signinUser, signoutUser, signupUser, updateUser, User, UserCredentials, UserRegistration } from "../redux/authSlice";
 import { AppDispatch, RootState } from "../store";
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -103,3 +103,63 @@ export const useGoogleAuth = () => {
         isAuthenticated
     };
 }
+
+
+
+
+export const useUpdateUser = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { user, status, error, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+    const update = async (updateData: {
+        userId: string;
+        formData: {
+            fullName?: string;
+            email?: string;
+            password?: string;
+            profilePicture?: string;
+        };
+        file?: File;
+    }) => {
+        try {
+            const result = await dispatch(updateUser(updateData)).unwrap();
+            return result;
+        } catch (error) {
+            throw typeof error === 'string' ? error : 'User update failed';
+        }
+    };
+
+    return {
+        user,
+        authStatus: status,
+        error,
+        update,
+        isAuthenticated
+    };
+}
+
+
+
+
+
+export const useDeleteUser = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { user, status, error, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+    const deleteAccount = async (userId: string) => {
+        try {
+            const result = await dispatch(deleteUser(userId)).unwrap();
+            return result;
+        } catch (error) {
+            throw typeof error === 'string' ? error : 'Account deletion failed';
+        }
+    };
+
+    return {
+        user,
+        deleteStatus: status,
+        error,
+        deleteAccount,
+        isAuthenticated
+    };
+};

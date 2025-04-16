@@ -2,24 +2,21 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router";
 import logo from "../assets/images/logo.png";
 import { CircleUser, Heart } from "lucide-react";
-import { useSignIn, useSignOut } from "../api/authApi";
+import { useSignOut } from "../api/authApi";
 import LogoutConfirmationModal from "./LogoutConfirmationModal";
 import { useSelector } from "react-redux";
 import { RootState } from "../store";
 
 const Navbar = () => {
-    const { user: authUser } = useSelector((state: RootState) => state.auth)
+    const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false); 
     const [isDropdownProfileOpen, setIsDropdownProfileOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [active, setActive] = useState<boolean>(false);
     const location = useLocation()
     const path = location.pathname.split('/')[1]
-    const { isAuthenticated, user } = useSignIn()
     const { signout } = useSignOut()
-
-console.log(authUser?.profilePicture);
 
 
     const handleSignout = () => {
@@ -62,16 +59,16 @@ console.log(authUser?.profilePicture);
                                             setIsDropdownProfileOpen(!isDropdownProfileOpen);
                                         }}
                                         id="dropdownMenuIconHorizontalButton" data-dropdown-toggle="dropdownDotsHorizontal" className="inline-flex cursor-pointer items-center p-2 text-sm font-medium text-center text-gray-900 rounded-full hover:bg-gray-100 dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
-                                        {/* {authUser?.profilePicture ?
+                                        {user?.profilePicture ?
                                             (
 
-                                                <img className="w-10 h-10 rounded-full" src={"https://lh3.googleusercontent.com/a/ACg8ocIPQrj6BzZE0nxEAnNGRZiDNSfC2VO3pQqiVJ4wd0NQU_z4Qg=s96-c"} alt="Rounded avatar"></img>
+                                                <img className="w-10 h-10 rounded-full" src={user?.profilePicture || '/default-avatar.png'} alt="Rounded avatar"></img>
                                             )
                                             :
-                                            ( */}
-                                                <CircleUser />
-                                            {/* ) */}
-                                        {/* } */}
+                                            (
+                                        <CircleUser />
+                                        )
+                                        }
                                     </button>
 
                                     <div id="dropdownDotsHorizontal" className={`z-10 ${isDropdownProfileOpen ? 'block' : 'hidden'} absolute top-12 right-0 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 dark:divide-gray-600`}>

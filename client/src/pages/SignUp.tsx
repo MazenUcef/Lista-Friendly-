@@ -222,7 +222,7 @@ const SignUp = () => {
                     {/* Submit Button with Loading State */}
                     <motion.button
                         type="submit"
-                        className="w-full cursor-pointer mb-3 bg-[#71BE63] hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2"
+                        className="w-full cursor-pointer bg-[#71BE63] hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         disabled={authStatus === 'loading'}
@@ -242,9 +242,10 @@ const SignUp = () => {
                             </>
                         )}
                     </motion.button>
+                </form>
+                <div className="px-6">
                     <Oauth />
-
-                    <div className="mt-6 text-center">
+                    <div className="my-2 text-center">
                         <p className="text-gray-600">
                             Already have an account?{' '}
                             <Link to="/signin" className="text-green-600 hover:text-green-800 font-medium">
@@ -252,7 +253,7 @@ const SignUp = () => {
                             </Link>
                         </p>
                     </div>
-                </form>
+                </div>
             </motion.div>
         </div>
     );

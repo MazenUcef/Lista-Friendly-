@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
 import toast from "react-hot-toast";
 
-interface User {
-    id: string;
+export interface User {
+    _id: string;
     fullName?: string;
     email?: string;
     profilePicture?: string;
@@ -42,8 +41,22 @@ const initialState: AuthState = {
 
 // Helper function for auth API calls
 const authApi = async (url: string, data: UserCredentials | UserRegistration) => {
-    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}${url}`, data);
-    return response.data;
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${url}`,
+        {
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            method: 'POST',
+            body: JSON.stringify(data),
+        }
+    );
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Authentication failed');
+    }
+    const responseData = await response.json();
+    return responseData;
 };
 
 export const signupUser = createAsyncThunk(
@@ -73,8 +86,19 @@ export const signoutUser = createAsyncThunk(
     'user/signout',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/user/signout`);
-            return response.data;
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/signout`, {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                method: 'POST',
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Logout failed');
+            }
+            const responseData = await response.json();
+            return responseData;
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Logout failed');
         }
@@ -86,13 +110,99 @@ export const googleAuth = createAsyncThunk(
     'auth/google',
     async (userData: GoogleAuthData, { rejectWithValue }) => {
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google`, userData);
-            return res.data;
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google`, {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                method: 'POST',
+                body: JSON.stringify(userData),
+            });
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'Authentication failed');
+            }
+            const responseData = await res.json();
+            return responseData;
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Google authentication failed');
         }
     }
 )
+
+
+
+export const updateUser = createAsyncThunk(
+    'user/update',
+    async (updateData: {
+        userId: string;
+        formData: {
+            fullName?: string;
+            email?: string;
+            password?: string;
+            profilePicture?: string;
+        };
+        file?: File;
+    }, { rejectWithValue }) => {
+        try {
+            const formData = new FormData();
+
+            // Append regular fields
+            if (updateData.formData.fullName) formData.append('fullName', updateData.formData.fullName);
+            if (updateData.formData.email) formData.append('email', updateData.formData.email);
+            if (updateData.formData.password) formData.append('password', updateData.formData.password);
+            if (updateData.formData.profilePicture) formData.append('profilePicture', updateData.formData.profilePicture);
+
+            // Append file if exists
+            if (updateData.file) formData.append('profilePicture', updateData.file);
+
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/update/${updateData.userId}`, {
+                credentials: 'include',
+                method: 'PUT',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'User update failed');
+            }
+
+            const responseData = await response.json();
+            return responseData;
+        } catch (error: any) {
+            return rejectWithValue(error.message || 'Failed to update user');
+        }
+    }
+);
+
+
+
+export const deleteUser = createAsyncThunk(
+    'user/delete',
+    async (userId: string, { rejectWithValue }) => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/delete/${userId}`,
+                {
+                    credentials: 'include',
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'User deletion failed');
+            }
+
+            const data = await res.json();
+            return data;
+        } catch (error: any) {
+            return rejectWithValue(error.message || 'User deletion failed');
+        }
+    }
+)
+
 
 
 
@@ -103,7 +213,6 @@ const authSlice = createSlice({
         logout: (state) => {
             state.user = null;
             state.isAuthenticated = false;
-            // Clear token from storage if needed
         },
         setAuthState: (state, action) => {
             state.user = action.payload.user;
@@ -175,6 +284,39 @@ const authSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.payload as string;
                 state.isAuthenticated = false;
+            })
+
+            
+            // Update user reducers
+            .addCase(updateUser.pending, (state) => {
+                state.status = 'loading';
+                state.error = null;
+            })
+            .addCase(updateUser.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.user = action.payload.user;
+                toast.success(action.payload.message);
+            })
+            .addCase(updateUser.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload as string;
+            })
+
+
+            // Delete user reducers
+            .addCase(deleteUser.pending, (state) => {
+                state.status = 'loading';
+                state.error = null;
+            })
+            .addCase(deleteUser.fulfilled, (state) => {
+                state.status = 'succeeded';
+                state.user = null;
+                state.isAuthenticated = false;
+                toast.success('Account deleted successfully');
+            })
+            .addCase(deleteUser.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload as string;
             });
     }
 });

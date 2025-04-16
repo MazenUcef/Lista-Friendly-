@@ -1,9 +1,10 @@
-import { PlusSquare, User } from "lucide-react"
+import { Home, PlusSquare, User } from "lucide-react"
 import { FaHeart } from "react-icons/fa"
 import { Link, Outlet } from "react-router"
 import { useSignOut } from "../api/authApi"
 import { useEffect, useRef, useState } from "react"
 import LogoutConfirmationModal from "../components/LogoutConfirmationModal"
+import logo from "../assets/images/logo.png";
 
 
 const DashboardLayOut = () => {
@@ -105,7 +106,17 @@ const DashboardLayOut = () => {
                     } sm:translate-x-0`}
                 aria-label="Sidebar">
                 <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
-                    <ul className="space-y-2 font-medium">
+                    <ul className="space-y-3 font-medium">
+                        <li>
+                            <Link to="/home" className="flex items-center mt-2 mb-7 space-x-3 rtl:space-x-reverse">
+                                <img
+                                    src={logo}
+                                    alt="Logo"
+                                    className="h-14"
+                                />
+                                <h1 className="font-bold text-[#71BE63] text-xl">Friendly <span className="text-black font-bold">ليسته</span></h1>
+                            </Link>
+                        </li>
                         <li>
                             <Link to="manage" onClick={() => setActive("Dashboard")} className={`${active === "Dashboard" && "bg-gray-200"} flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group`}>
                                 <svg className="w-5 h-5 text-[#73bf63] transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
@@ -152,9 +163,15 @@ const DashboardLayOut = () => {
                             </Link>
                         </li>
                         <li>
+                            <Link to="/home" className={`flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group`}>
+                                <Home color="#73bf63" size={25} />
+                                <span className="flex-1 ms-3 whitespace-nowrap">Home</span>
+                            </Link>
+                        </li>
+                        <li>
                             <button onClick={handleSignout} className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white cursor-pointer group">
                                 <svg className="shrink-0 w-5 h-5 text-[#73bf63] transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3" />
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3" />
                                 </svg>
                                 <span className="flex-1 ms-3 whitespace-nowrap">Sign Out</span>
                             </button>
@@ -164,7 +181,7 @@ const DashboardLayOut = () => {
             </aside>
 
             <div className="p-4 sm:ml-64">
-                <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+                <div className="p-4 border-2 border-[#73bf63] border-dashed rounded-lg dark:border-gray-700">
                     <Outlet />
                 </div>
             </div>

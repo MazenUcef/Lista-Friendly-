@@ -10,6 +10,7 @@ import AboutUs from "../pages/AboutUs"
 import DashboardLayOut from "../pages/DashboardLayOut"
 import Dashboard from "../pages/Dashboard"
 import Profile from "../pages/Profile"
+import PrivateRoute from "../components/PrivateRoute"
 
 
 const AppRoutes = () => {
@@ -22,10 +23,12 @@ const AppRoutes = () => {
                     <Route path="/signin" element={<SignIn />} />
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/categories" element={<Categories />} />
-                    <Route path="/dashboard" element={<DashboardLayOut />} >
-                        <Route index element={<Dashboard />} />
-                        <Route path="/dashboard/manage" element={<Dashboard />} />
-                        <Route path="/dashboard/profile" element={<Profile />} />
+                    <Route element={<PrivateRoute />}>
+                        <Route path="/dashboard" element={<DashboardLayOut />} >
+                            <Route index element={<Dashboard />} />
+                            <Route path="/dashboard/manage" element={<Dashboard />} />
+                            <Route path="/dashboard/profile" element={<Profile />} />
+                        </Route>
                     </Route>
                     <Route path="/brands" element={<Brands />} />
                     <Route path="/aboutus" element={<AboutUs />} />

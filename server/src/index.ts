@@ -9,6 +9,7 @@ import helmet from 'helmet'; // Added for security
 import morgan from 'morgan'; // Added for logging
 import authRoutes from './routes/AuthRoute'; // Added for logging
 import userRoutes from './routes/UserRoute'; // Added for logging
+import { v2 as cloudinary } from 'cloudinary';
 
 const app: Application = express();
 
@@ -32,9 +33,10 @@ app.use(morgan('dev')); // HTTP request logging
 app.use(cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 
 // Database connection
 mongoose.set('strictQuery', false);
@@ -48,6 +50,13 @@ const connectDB = async (): Promise<void> => {
         process.exit(1); // Exit process with failure
     }
 };
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+})
+
 
 app.use('/api/auth', authRoutes)
 app.use('/api/user', userRoutes)
