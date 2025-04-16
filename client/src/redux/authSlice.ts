@@ -6,7 +6,7 @@ export interface User {
     fullName?: string;
     email?: string;
     profilePicture?: string;
-    // Add other user properties as needed
+    isAdmin?: boolean;
 }
 
 interface AuthState {

@@ -66,7 +66,7 @@ const Signin = async (req: Request, res: Response, next: NextFunction) => {
 
         // 4. JWT token generation with expiration
         const token = jwt.sign(
-            { id: user._id },
+            { id: user._id, isAdmin: user.isAdmin },
             process.env.JWT_SECRET as string,
         );
 
@@ -95,7 +95,7 @@ const Google = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = await User.findOne({ email });
         if (user) {
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string);
+            const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET as string);
             const { password: userPassword, ...userWithoutPassword } = user.toObject();
             res.status(200).cookie('access_token', token, {
                 httpOnly: true,
@@ -116,7 +116,7 @@ const Google = async (req: Request, res: Response, next: NextFunction) => {
                 profilePicture: googlePhotoUrl,
             })
             await newUser.save();
-            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET as string);
+            const token = jwt.sign({ id: newUser._id, isAdmin: newUser.isAdmin }, process.env.JWT_SECRET as string);
             const { password: userPassword, ...userWithoutPassword } = newUser.toObject();
             res.status(201).cookie('access_token', token, {
                 httpOnly: true,
