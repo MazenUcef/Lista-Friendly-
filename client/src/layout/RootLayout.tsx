@@ -13,7 +13,9 @@ const RootLayout = () => {
                 <Navbar />
             )}
             <Outlet />
-            <Footer />
+            {!isDashboard && (
+                <Footer />
+            )}
         </div>
     )
 }

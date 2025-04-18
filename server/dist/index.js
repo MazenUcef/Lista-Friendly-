@@ -12,13 +12,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("./utils/paths");
+require("module-alias/register");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 require("dotenv/config");
 const mongoose_1 = __importDefault(require("mongoose"));
-const helmet_1 = __importDefault(require("helmet")); // Added for security
-const morgan_1 = __importDefault(require("morgan")); // Added for logging
+const helmet_1 = __importDefault(require("helmet"));
+const morgan_1 = __importDefault(require("morgan"));
+const AuthRoute_1 = __importDefault(require("./routes/AuthRoute"));
+const UserRoute_1 = __importDefault(require("./routes/UserRoute"));
+const PostsRoute_1 = __importDefault(require("./routes/PostsRoute"));
+const FavsRoute_1 = __importDefault(require("./routes/FavsRoute"));
+const cloudinary_1 = require("cloudinary");
 const app = (0, express_1.default)();
 // Configuration validation
 if (!process.env.MONGO_URL) {
@@ -37,7 +44,7 @@ app.use((0, morgan_1.default)('dev')); // HTTP request logging
 app.use((0, cors_1.default)({
     origin: process.env.CLIENT_URL,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 // Database connection
@@ -52,6 +59,15 @@ const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
         process.exit(1); // Exit process with failure
     }
 });
+cloudinary_1.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+app.use('/api/auth', AuthRoute_1.default);
+app.use('/api/user', UserRoute_1.default);
+app.use('/api/post', PostsRoute_1.default);
+app.use('/api/favorites', FavsRoute_1.default);
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'UP' });
@@ -61,9 +77,18 @@ app.get("/test", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.json({ message: "Hello" });
 }));
 // Error handling middleware (should be after all routes)
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Something went wrong!' });
+});
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
+    res.status(statusCode).json({
+        success: false,
+        statusCode,
+        message
+    });
 });
 // Start server only after DB connection
 const startServer = () => __awaiter(void 0, void 0, void 0, function* () {

@@ -5,10 +5,12 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import mongoose from 'mongoose';
-import helmet from 'helmet'; // Added for security
-import morgan from 'morgan'; // Added for logging
-import authRoutes from './routes/AuthRoute'; // Added for logging
-import userRoutes from './routes/UserRoute'; // Added for logging
+import helmet from 'helmet';
+import morgan from 'morgan';
+import authRoutes from './routes/AuthRoute';
+import userRoutes from './routes/UserRoute';
+import postRoutes from './routes/PostsRoute';
+import favRoutes from './routes/FavsRoute';
 import { v2 as cloudinary } from 'cloudinary';
 
 const app: Application = express();
@@ -60,6 +62,8 @@ cloudinary.config({
 
 app.use('/api/auth', authRoutes)
 app.use('/api/user', userRoutes)
+app.use('/api/post', postRoutes)
+app.use('/api/favorites', favRoutes)
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {

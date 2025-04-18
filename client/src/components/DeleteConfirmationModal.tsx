@@ -32,7 +32,7 @@ const DeleteConfirmationModal = ({ confirmDelete, setShowDeleteModal }:DeleteCon
                     </div>
                     <div className="p-4 md:p-5 space-y-4">
                         <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-                            Are you sure you want to delete your account?
+                            Are you sure you want to delete ?
                         </p>
                     </div>
                     <div className="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
@@ -41,7 +41,7 @@ const DeleteConfirmationModal = ({ confirmDelete, setShowDeleteModal }:DeleteCon
                             type="button"
                             className="text-white bg-[#71BE63] cursor-pointer hover:bg-[#71BE00] focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800"
                         >
-                            Yes, Delete My Account
+                            Yes, Delete
                         </button>
                         <button
                             onClick={() => setShowDeleteModal(false)}

@@ -1,27 +1,48 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
 import logo from "../assets/images/logo.png";
 import { CircleUser, Heart } from "lucide-react";
 import { useSignOut } from "../api/authApi";
 import LogoutConfirmationModal from "./LogoutConfirmationModal";
 import { useSelector } from "react-redux";
 import { RootState } from "../store";
+import { useReadFavorites } from "../api/favoriteApi";
+import { CATEGORIES } from "../constants";
 
 const Navbar = () => {
     const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const { favorites } = useSelector((state: RootState) => state.fav);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [showLogoutModal, setShowLogoutModal] = useState(false); 
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [isDropdownProfileOpen, setIsDropdownProfileOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [active, setActive] = useState<boolean>(false);
+    const isAdmin = user?.isAdmin || false;
     const location = useLocation()
     const path = location.pathname.split('/')[1]
     const { signout } = useSignOut()
+    const navigate = useNavigate()
+
+    const { fetchFavorites } = useReadFavorites();
+
+
+
+    const handleCategorySelect = (category: string) => {
+        setIsDropdownOpen(false);
+        setActive(false);
+        navigate(`/brands?category=${encodeURIComponent(category)}`);
+    };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchFavorites();
+        }
+    }, [isAuthenticated])
 
 
     const handleSignout = () => {
         setShowLogoutModal(true);
-        setIsDropdownProfileOpen(false); // Close the dropdown when showing modal
+        setIsDropdownProfileOpen(false);
     }
 
     const confirmSignout = () => {
@@ -51,7 +72,7 @@ const Navbar = () => {
                             <div className="flex items-center gap-5">
                                 <Link to={'/favorites'} className="flex relative hover:bg-gray-100 rounded-full p-2">
                                     <Heart />
-                                    <span className="bg-red-600 absolute left-6 bottom-5 flex items-center justify-center text-white font-semibold rounded-full w-5 h-5">3</span>
+                                    <span className="bg-red-600 absolute left-6 bottom-5 flex items-center justify-center text-white font-semibold rounded-full w-5 h-5">{favorites?.length}</span>
                                 </Link>
                                 <div className="relative">
                                     <button
@@ -66,8 +87,8 @@ const Navbar = () => {
                                             )
                                             :
                                             (
-                                        <CircleUser />
-                                        )
+                                                <CircleUser />
+                                            )
                                         }
                                     </button>
 
@@ -79,9 +100,14 @@ const Navbar = () => {
                                                     <span className="text-sm font-semibold overflow-hidden">{user?.fullName}</span>
                                                 </Link>
                                             </li>
-                                            <li>
-                                                <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</Link>
-                                            </li>
+                                            {
+                                                isAdmin && (
+                                                    <li>
+                                                        <Link to="/dashboard/manage" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</Link>
+                                                    </li>
+                                                )
+                                            }
+
                                         </ul>
                                         <div className="py-2">
                                             <span onClick={handleSignout} className="block px-4 py-2 cursor-pointer text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign Out</span>
@@ -128,20 +154,24 @@ const Navbar = () => {
                                 className={`${isDropdownOpen ? 'block' : 'hidden'} absolute z-10 font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600`}
                             >
                                 <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
-                                    <li>
-                                        <Link to="#" className="block px-4 py-2 hover:text-[#71BE63] dark:hover:bg-gray-600 dark:hover:text-white">cat1</Link>
-                                    </li>
-                                    <li>
-                                        <Link to="#" className="block px-4 py-2 hover:text-[#71BE63] dark:hover:bg-gray-600 dark:hover:text-white">cat2</Link>
-                                    </li>
+                                    {CATEGORIES.map(category => (
+                                        <li key={category}>
+                                            <button
+                                                onClick={() => handleCategorySelect(category)}
+                                                className="block w-full text-left px-4 py-2 hover:text-[#71BE63] dark:hover:bg-gray-600 dark:hover:text-white"
+                                            >
+                                                {category}
+                                            </button>
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
                         </li>
                         <li>
-                            <Link to="/brands" className={`block ${path === "brands" ? "text-[#71BE63]" : "text-black"}  py-2 px-3 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-[#71BE63] md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent`}>Brands</Link>
+                            <Link to="/brands" className={`block ${path === "brands" ? "text-[#71BE63]" : "text-black"}  py-2 px-3 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-[#71BE63] md:p-0 `}>Brands</Link>
                         </li>
                         <li>
-                            <Link to="/aboutus" className={`block ${path === "aboutus" ? "text-[#71BE63]" : "text-black"} py-2 px-3 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-[#71BE63] md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent`}>About Us</Link>
+                            <Link to="/aboutus" className={`block ${path === "aboutus" ? "text-[#71BE63]" : "text-black"} py-2 px-3 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-[#71BE63] md:p-0 `}>About Us</Link>
                         </li>
                     </ul>
                 </div>
