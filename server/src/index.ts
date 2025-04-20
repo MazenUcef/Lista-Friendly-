@@ -88,13 +88,11 @@ app.get("/test", async (req: Request, res: Response<{ message: string }>) => {
 });
 
 
+// THEN static files and catch-all
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));
-
-// Catch-all route to serve index.html for client-side routing
-app.get('*', (req: Request, res: Response) => {
+app.get('*', (req:Request, res:Response) => {
     res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
 });
-
 // Error handling middleware (should be after all routes)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
