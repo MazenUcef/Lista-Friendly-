@@ -102,7 +102,7 @@ export const createPost = createAsyncThunk(
                 formData.append('brandPicture', postData.brandPicture);
             }
 
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/post/create`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/post/create`, {
                 credentials: 'include',
                 headers: {
                     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
@@ -141,7 +141,7 @@ export const readPosts = createAsyncThunk(
             query.append('limit', (params.limit ?? 10).toString());
             query.append('order', params.order || 'desc');
 
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/post/read?${query.toString()}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/post/read?${query.toString()}`, {
                 credentials: 'include',
                 headers: {
                     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
@@ -168,7 +168,7 @@ export const deletePost = createAsyncThunk(
     'post/delete',
     async ({ postId, userId }: { postId: string, userId: string }, { rejectWithValue }) => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/post/delete/${postId}/${userId}`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/post/delete/${postId}/${userId}`, {
                 credentials: 'include',
                 method: 'DELETE',
                 headers: {
@@ -220,7 +220,7 @@ export const updatePost = createAsyncThunk(
             }
 
             const response = await fetch(
-                `${import.meta.env.VITE_API_BASE_URL}api/post/update/${postData.postId}/${postData.userId}`,
+                `${import.meta.env.VITE_API_BASE_URL}/api/post/update/${postData.postId}/${postData.userId}`,
                 {
                     credentials: 'include',
                     method: 'PUT',

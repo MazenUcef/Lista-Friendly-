@@ -39,7 +39,7 @@ export const toggleFavorite = createAsyncThunk(
     'favorite/toggle',
     async (postId: string, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/favorites/toggle`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/favorites/toggle`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -69,7 +69,7 @@ export const readFavorites = createAsyncThunk(
             query.append('startIndex', (params.startIndex ?? 0).toString());
             query.append('limit', (params.limit ?? 10).toString());
 
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/favorites/read?${query.toString()}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/favorites/read?${query.toString()}`, {
                 credentials: 'include',
                 headers: {
                     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),

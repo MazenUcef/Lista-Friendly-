@@ -36,7 +36,7 @@ export const updateUser = createAsyncThunk(
         try {
             const { userId, ...updateFields } = updateData;
             const response = await axios.put(
-                `${import.meta.env.VITE_API_BASE_URL}api/user/update/${userId}`,
+                `${import.meta.env.VITE_API_BASE_URL}/api/user/update/${userId}`,
                 updateFields,
                 {
                     withCredentials: true,
