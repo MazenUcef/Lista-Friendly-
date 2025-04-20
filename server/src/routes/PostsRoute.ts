@@ -1,9 +1,10 @@
-import FavoriteController from '@/controllers/FavoriteController';
-import PostController from '@/controllers/PostController';
-import { validatePostCreation } from '@/middleware/validation';
-import { verifyToken } from '@/utils/verifyUser';
+
 import express from 'express';
 import multer from 'multer';
+import { verifyToken } from '../utils/verifyUser';
+import { validatePostCreation } from '../middleware/validation';
+import PostController from '../controllers/PostController';
+import FavoriteController from '../controllers/FavoriteController';
 
 const router = express.Router();
 

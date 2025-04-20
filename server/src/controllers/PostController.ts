@@ -1,7 +1,8 @@
-import Post from "@/modals/post.modal";
+
 import { Request, Response, NextFunction } from "express";
 import cloudinary from "cloudinary";
 import mongoose from "mongoose";
+import Post from "../modals/post.modal";
 
 const createPost = async (req: Request, res: Response, next: NextFunction) => {
     try {

@@ -1,7 +1,8 @@
 
-import Favorite from "@/modals/favorite.model";
-import Post from "@/modals/post.modal";
+
 import { NextFunction, Request, Response } from "express";
+import Post from "../modals/post.modal";
+import Favorite from "../modals/favorite.model";
 
 
 const toggleFavorite = async (req: Request, res: Response, next: NextFunction) => {

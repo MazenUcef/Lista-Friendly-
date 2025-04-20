@@ -25,7 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const cloudinary_1 = __importDefault(require("cloudinary"));
-const user_modal_1 = __importDefault(require("@/modals/user.modal"));
+const user_modal_1 = __importDefault(require("../modals/user.modal"));
 const Signout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         res.clearCookie('access_token', {

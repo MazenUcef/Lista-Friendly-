@@ -24,8 +24,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const user_modal_1 = __importDefault(require("@/modals/user.modal"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const user_modal_1 = __importDefault(require("../modals/user.modal"));
 const Signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { fullName, email, password } = req.body;

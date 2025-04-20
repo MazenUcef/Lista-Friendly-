@@ -1,6 +1,7 @@
-import Comment from "@/modals/comment.model";
-import User from "@/modals/user.modal";
+
 import { NextFunction, Request, Response } from "express";
+import Comment from "../modals/comment.model";
+import User from "../modals/user.modal";
 
 const AddComment = async (req: Request, res: Response, next: NextFunction) => {
     try {

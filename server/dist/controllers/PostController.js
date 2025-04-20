@@ -23,9 +23,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const post_modal_1 = __importDefault(require("@/modals/post.modal"));
 const cloudinary_1 = __importDefault(require("cloudinary"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const post_modal_1 = __importDefault(require("../modals/post.modal"));
 const createPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {

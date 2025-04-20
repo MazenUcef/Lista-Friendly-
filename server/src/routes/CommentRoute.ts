@@ -1,7 +1,8 @@
-import CommentController from '@/controllers/CommentController';
-import { validateComment } from '@/middleware/validation';
-import { verifyToken } from '@/utils/verifyUser';
+
 import express from 'express';
+import { verifyToken } from '../utils/verifyUser';
+import { validateComment } from '../middleware/validation';
+import CommentController from '../controllers/CommentController';
 
 
 

@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import cloudinary from "cloudinary";
-import User from "@/modals/user.modal";
+import User from "../modals/user.modal";
+
 
 const Signout = async (req: Request, res: Response, next: NextFunction) => {
     try {

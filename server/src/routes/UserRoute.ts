@@ -1,8 +1,9 @@
-import UserController from "@/controllers/UserController";
-import { validateUpdate } from "@/middleware/validation";
-import { verifyToken } from "@/utils/verifyUser";
+
 import express from "express";
 import multer from "multer";
+import UserController from "../controllers/UserController";
+import { verifyToken } from "../utils/verifyUser";
+import { validateUpdate } from "../middleware/validation";
 
 
 const router = express.Router();

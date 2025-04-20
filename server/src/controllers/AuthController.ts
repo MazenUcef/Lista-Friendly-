@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from 'bcryptjs';
-import User from "@/modals/user.modal";
 import jwt from 'jsonwebtoken';
+import User from "../modals/user.modal";
 
 const Signup = async (req: Request, res: Response, next: NextFunction) => {
     try {
