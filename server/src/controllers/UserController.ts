@@ -8,12 +8,14 @@ const Signout = async (req: Request, res: Response, next: NextFunction) => {
     try {
         res.clearCookie('access_token', {
             httpOnly: true,
-            secure: true, // Essential for HTTPS
-            sameSite: 'none', // Required for cross-site usage
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-            path: '/', // Accessible across all paths
-            partitioned: true // Helps with ITP restrictions (iOS Safari)
-        }).status(200).json("User has been logged out successfully")
+            secure: true,
+            sameSite: 'none',
+            path: '/',
+            partitioned: true
+        }).status(200).json({
+            message: "User has been logged out successfully",
+            token: null // Explicitly set token to null for client-side cleanup
+        });
     } catch (error) {
         next(error)
     }
@@ -108,6 +110,7 @@ const DeleteUser = async (req: Request, res: Response, next: NextFunction) => {
         // 5. Return success response
         res.status(200).json({
             success: true,
+            token: null,
             message: "User deleted successfully",
             userId: deletedUser?._id
         });

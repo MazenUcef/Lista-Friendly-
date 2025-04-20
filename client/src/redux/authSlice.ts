@@ -69,6 +69,7 @@ const initialState: AuthState = {
     error: null,
     isAuthenticated: false
 };
+const token = localStorage.getItem('token')
 
 // Helper function for auth API calls
 const authApi = async (url: string, data: UserCredentials | UserRegistration) => {
@@ -121,6 +122,7 @@ export const signoutUser = createAsyncThunk(
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                 },
                 method: 'POST',
             });
@@ -189,6 +191,9 @@ export const updateUser = createAsyncThunk(
 
             const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/user/update/${updateData.userId}`, {
                 credentials: 'include',
+                headers: {
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                },
                 method: 'PUT',
                 body: formData,
             });
@@ -218,6 +223,7 @@ export const deleteUser = createAsyncThunk(
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                     },
                 });
 
@@ -260,6 +266,8 @@ export const getUsers = createAsyncThunk(
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+
                     },
                 }
             );
@@ -291,6 +299,7 @@ export const deleteUsers = createAsyncThunk(
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                     },
                 }
             );
@@ -344,7 +353,6 @@ const authSlice = createSlice({
                 state.error = action.payload as string;
             })
 
-            // Signin reducers
             .addCase(signinUser.pending, (state) => {
                 state.status = 'loading';
                 state.error = null;
@@ -353,6 +361,10 @@ const authSlice = createSlice({
                 state.status = 'succeeded';
                 state.user = action.payload.user;
                 state.isAuthenticated = true;
+                // Store token in local storage
+                if (action.payload.token) {
+                    localStorage.setItem('token', action.payload.token);
+                }
                 toast.success(action.payload.message);
             })
             .addCase(signinUser.rejected, (state, action) => {
@@ -370,6 +382,9 @@ const authSlice = createSlice({
                 state.status = 'idle';
                 state.user = null;
                 state.isAuthenticated = false;
+                if (token) {
+                    localStorage.removeItem('token');
+                }
                 toast.success('Logged out successfully');
             })
             .addCase(signoutUser.rejected, (state, action) => {
@@ -386,6 +401,10 @@ const authSlice = createSlice({
                 state.status = 'succeeded';
                 state.user = action.payload.user;
                 state.isAuthenticated = true;
+                // Store token in local storage
+                if (action.payload.token) {
+                    localStorage.setItem('token', action.payload.token);
+                }
                 toast.success(action.payload.message);
             })
             .addCase(googleAuth.rejected, (state, action) => {
@@ -420,6 +439,9 @@ const authSlice = createSlice({
                 state.status = 'succeeded';
                 state.user = null;
                 state.isAuthenticated = false;
+                if (token) {
+                    localStorage.removeItem('token');
+                }
                 toast.success('Account deleted successfully');
             })
             .addCase(deleteUser.rejected, (state, action) => {
