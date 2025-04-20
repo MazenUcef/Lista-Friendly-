@@ -34,25 +34,16 @@ app.use(morgan('dev')); // HTTP request logging
 
 // CORS configuration (more secure)
 
-// Update your allowed origins to include all necessary URLs
-const allowedOrigins = [
-'http://localhost',
-    'http://localhost:5173',
-    'http://localhost:5000',
-    'https://lista-friendly-10.onrender.com'
-].filter(Boolean);
+// // Update your allowed origins to include all necessary URLs
+// const allowedOrigins = [
+// 'http://localhost',
+//     'http://localhost:5173',
+//     'http://localhost:5000',
+//     'https://lista-friendly-10.onrender.com'
+// ].filter(Boolean);
 
 app.use(cors({
-    origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: 'https://lista-friendly-10.onrender.com',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
