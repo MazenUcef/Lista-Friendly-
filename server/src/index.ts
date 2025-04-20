@@ -36,9 +36,10 @@ app.use(morgan('dev')); // HTTP request logging
 
 // Update your allowed origins to include all necessary URLs
 const allowedOrigins = [
-    'http://localhost',         // Production frontend
-    'http://localhost:5173',    // Vite dev server
-    'http://localhost:5000'     // Backend (if needed)
+'http://localhost',
+    'http://localhost:5173',
+    'http://localhost:5000',
+    'https://lista-friendly-10.onrender.com'
 ].filter(Boolean);
 
 app.use(cors({

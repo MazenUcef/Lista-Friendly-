@@ -27,6 +27,7 @@ const PostsRoute_1 = __importDefault(require("./routes/PostsRoute"));
 const FavsRoute_1 = __importDefault(require("./routes/FavsRoute"));
 const CommentRoute_1 = __importDefault(require("./routes/CommentRoute"));
 const cloudinary_1 = require("cloudinary");
+const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 // Configuration validation
 if (!process.env.MONGO_URL) {
@@ -86,6 +87,14 @@ app.use('/api/user', UserRoute_1.default);
 app.use('/api/post', PostsRoute_1.default);
 app.use('/api/favorites', FavsRoute_1.default);
 app.use('/api/comments', CommentRoute_1.default);
+// Serve frontend in production
+if (process.env.NODE_ENV === 'production') {
+    const clientPath = path_1.default.join(__dirname, '../../client/dist');
+    app.use(express_1.default.static(clientPath));
+    app.get('*', (req, res) => {
+        res.sendFile(path_1.default.join(clientPath, 'index.html'));
+    });
+}
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'UP' });
