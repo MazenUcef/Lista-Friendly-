@@ -8,9 +8,8 @@ const Signout = async (req: Request, res: Response, next: NextFunction) => {
     try {
         res.clearCookie('access_token', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 86400000 // 1 day in ms
+            secure: true,
+            sameSite: 'none',
         }).status(200).json("User has been logged out successfully")
     } catch (error) {
         next(error)
@@ -96,6 +95,8 @@ const DeleteUser = async (req: Request, res: Response, next: NextFunction) => {
         // 4. Clear authentication cookies/tokens if needed
         res.clearCookie('access_token', {
             httpOnly: true,
+            secure: true,
+            sameSite: 'none',
         });
 
         // 5. Return success response

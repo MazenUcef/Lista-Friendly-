@@ -76,6 +76,8 @@ const Signin = async (req: Request, res: Response, next: NextFunction) => {
         // 7. Secure cookie settings
         res.cookie('access_token', token, {
             httpOnly: true,
+            secure: true,
+            sameSite: 'none',
         }).status(200).json({
             user: userWithoutPassword,
             message: "Sign In successfully"
@@ -96,9 +98,8 @@ const Google = async (req: Request, res: Response, next: NextFunction) => {
             const { password: userPassword, ...userWithoutPassword } = user.toObject();
             res.status(200).cookie('access_token', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 86400000 // 1 day in ms
+                secure: true,
+                sameSite: 'none',
             }).json({
                 user: userWithoutPassword,
                 message: "Sign In successfully"
@@ -117,9 +118,8 @@ const Google = async (req: Request, res: Response, next: NextFunction) => {
             const { password: userPassword, ...userWithoutPassword } = newUser.toObject();
             res.status(201).cookie('access_token', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 86400000 // 1 day in ms
+                secure: true,
+                sameSite: 'none',
             }).json({
                 user: userWithoutPassword,
                 message: user ? 'Signed in successfully' : 'Account created and signed in'
