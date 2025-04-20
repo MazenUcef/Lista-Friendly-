@@ -13,8 +13,6 @@ import postRoutes from './routes/PostsRoute';
 import favRoutes from './routes/FavsRoute';
 import commentsRoutes from './routes/CommentRoute';
 import { v2 as cloudinary } from 'cloudinary';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 const app: Application = express();
 
@@ -86,7 +84,6 @@ app.get('/health', (req: Request, res: Response) => {
 app.get("/test", async (req: Request, res: Response<{ message: string }>) => {
     res.json({ message: "Hello" });
 });
-
 
 // Error handling middleware (should be after all routes)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
