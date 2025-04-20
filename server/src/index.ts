@@ -43,7 +43,7 @@ app.use(morgan('dev')); // HTTP request logging
 // ].filter(Boolean);
 
 app.use(cors({
-    origin: 'https://lista-friendly-frontend.onrender.com',
+    origin: 'https://lista-friendly.onrender.com',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
