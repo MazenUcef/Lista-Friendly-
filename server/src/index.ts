@@ -88,11 +88,6 @@ app.get("/test", async (req: Request, res: Response<{ message: string }>) => {
 });
 
 
-// THEN static files and catch-all
-app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));
-app.get('*', (req:Request, res:Response) => {
-    res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
-});
 // Error handling middleware (should be after all routes)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
@@ -111,6 +106,13 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
         statusCode,
         message
     });
+});
+
+
+// THEN static files and catch-all
+app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));
+app.get('*', (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
 });
 
 // Start server only after DB connection
