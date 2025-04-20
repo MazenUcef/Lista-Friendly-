@@ -13,6 +13,8 @@ import postRoutes from './routes/PostsRoute';
 import favRoutes from './routes/FavsRoute';
 import commentsRoutes from './routes/CommentRoute';
 import { v2 as cloudinary } from 'cloudinary';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app: Application = express();
 
@@ -83,6 +85,14 @@ app.get('/health', (req: Request, res: Response) => {
 // Test endpoint with better typing
 app.get("/test", async (req: Request, res: Response<{ message: string }>) => {
     res.json({ message: "Hello" });
+});
+
+
+app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));
+
+// Catch-all route to serve index.html for client-side routing
+app.get('*', (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
 });
 
 // Error handling middleware (should be after all routes)

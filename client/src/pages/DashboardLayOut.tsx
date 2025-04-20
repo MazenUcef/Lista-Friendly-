@@ -13,8 +13,6 @@ const DashboardLayOut = () => {
     const location = useLocation()
     const path = location.pathname
     const active = path.split("/").pop() || "Profile"
-    console.log(active);
-
     const [activeLink, setActive] = useState(active)
     const { user } = useSelector((state: RootState) => state.auth);
     const isAdmin = user?.isAdmin || false;

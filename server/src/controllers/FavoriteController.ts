@@ -9,7 +9,6 @@ const toggleFavorite = async (req: Request, res: Response, next: NextFunction) =
     try {
         const { postId } = req.body;
         const userId = req.user?.id;
-        console.log(postId, userId);
 
         if (!userId) {
             res.status(401).json({ message: "Unauthorized" });

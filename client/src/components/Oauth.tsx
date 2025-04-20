@@ -7,7 +7,7 @@ import { useNavigate } from "react-router"
 import toast from "react-hot-toast"
 
 const Oauth = () => {
-    const { signInWithGoogle, authStatus } = useGoogleAuth();
+    const { signInWithGoogle } = useGoogleAuth();
     const navigate = useNavigate()
 
 
@@ -24,8 +24,7 @@ const Oauth = () => {
                 googlePhotoUrl: user.photoURL || undefined,
                 firebaseUid: user.uid
             });
-            console.log(authStatus);
-            
+        
             if (res) {
                 navigate('/')
             } else {
