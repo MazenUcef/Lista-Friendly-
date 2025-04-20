@@ -27,7 +27,6 @@ const initialState: UserState = {
     status: 'idle',
     error: null,
 };
-const token = localStorage.getItem('token')
 
 
 export const updateUser = createAsyncThunk(
@@ -40,9 +39,6 @@ export const updateUser = createAsyncThunk(
                 updateFields,
                 {
                     withCredentials: true,
-                    headers: {
-                        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-                    },
                 }
             );
             return response.data;

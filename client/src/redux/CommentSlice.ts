@@ -46,7 +46,7 @@ interface AddCommentParams {
     userAvatar: string;
 
 }
-const token = localStorage.getItem('token')
+
 const initialState: CommentState = {
     comments: [],
     status: "idle",
@@ -62,7 +62,6 @@ export const addComment = createAsyncThunk(
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                 },
                 body: JSON.stringify({ postId, rating, comment, userId, userName, userAvatar })
             });
@@ -89,9 +88,6 @@ export const getComments = createAsyncThunk(
 
             const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/comments/getComments/${postId}?${query.toString()}`, {
                 credentials: 'include',
-                headers: {
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-                },
                 method: 'GET',
             });
 
@@ -118,7 +114,6 @@ export const deleteComment = createAsyncThunk(
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                 },
             });
 
@@ -148,9 +143,6 @@ export const getAllComments = createAsyncThunk(
             const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/comments/getAllComments?${query.toString()}`, {
                 credentials: 'include',
                 method: 'GET',
-                headers: {
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-                },
             });
 
             if (!response.ok) {

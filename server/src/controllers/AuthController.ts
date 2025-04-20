@@ -83,7 +83,6 @@ const Signin = async (req: Request, res: Response, next: NextFunction) => {
             partitioned: true // Helps with ITP restrictions (iOS Safari)
         }).status(200).json({
             user: userWithoutPassword,
-            token: token,
             message: "Sign In successfully"
         });
 
@@ -109,7 +108,6 @@ const Google = async (req: Request, res: Response, next: NextFunction) => {
                 partitioned: true // Helps with ITP restrictions (iOS Safari)
             }).json({
                 user: userWithoutPassword,
-                token: token,
                 message: "Sign In successfully"
             })
         } else {
@@ -133,7 +131,6 @@ const Google = async (req: Request, res: Response, next: NextFunction) => {
                 partitioned: true // Helps with ITP restrictions (iOS Safari)
             }).json({
                 user: userWithoutPassword,
-                token: token,
                 message: user ? 'Signed in successfully' : 'Account created and signed in'
             })
         }
