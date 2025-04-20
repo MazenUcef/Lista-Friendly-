@@ -4,9 +4,8 @@
   "main": "./src/index.ts",
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "build": "npm install && npx tsc",
-    "start": "node dist/index.js",
-    "build:watch": "tsc --watch"
+    "build": "npm install typescript && rm -rf dist && tsc",
+    "start": "node dist/index.js"
   },
   "_moduleAliases": {
     "@": "dist",
