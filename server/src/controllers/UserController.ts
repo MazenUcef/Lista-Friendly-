@@ -8,8 +8,12 @@ const Signout = async (req: Request, res: Response, next: NextFunction) => {
     try {
         res.clearCookie('access_token', {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none',
+            secure: true, // Essential for HTTPS
+            sameSite: 'none', // Required for cross-site usage
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+            path: '/', // Accessible across all paths
+            domain: process.env.NODE_ENV === 'production' ? 'https://lista-friendly-10.onrender.com' : undefined,
+            partitioned: true // Helps with ITP restrictions (iOS Safari)
         }).status(200).json("User has been logged out successfully")
     } catch (error) {
         next(error)
@@ -95,8 +99,12 @@ const DeleteUser = async (req: Request, res: Response, next: NextFunction) => {
         // 4. Clear authentication cookies/tokens if needed
         res.clearCookie('access_token', {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none',
+            secure: true, // Essential for HTTPS
+            sameSite: 'none', // Required for cross-site usage
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+            path: '/', // Accessible across all paths
+            domain: process.env.NODE_ENV === 'production' ? 'https://lista-friendly-10.onrender.com' : undefined,
+            partitioned: true // Helps with ITP restrictions (iOS Safari)
         });
 
         // 5. Return success response

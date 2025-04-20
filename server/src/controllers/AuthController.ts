@@ -76,8 +76,12 @@ const Signin = async (req: Request, res: Response, next: NextFunction) => {
         // 7. Secure cookie settings
         res.cookie('access_token', token, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none',
+            secure: true, // Essential for HTTPS
+            sameSite: 'none', // Required for cross-site usage
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+            path: '/', // Accessible across all paths
+            domain: process.env.NODE_ENV === 'production' ? 'https://lista-friendly-10.onrender.com' : undefined,
+            partitioned: true // Helps with ITP restrictions (iOS Safari)
         }).status(200).json({
             user: userWithoutPassword,
             message: "Sign In successfully"
@@ -98,8 +102,12 @@ const Google = async (req: Request, res: Response, next: NextFunction) => {
             const { password: userPassword, ...userWithoutPassword } = user.toObject();
             res.status(200).cookie('access_token', token, {
                 httpOnly: true,
-                secure: true,
-                sameSite: 'none',
+                secure: true, // Essential for HTTPS
+                sameSite: 'none', // Required for cross-site usage
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+                path: '/', // Accessible across all paths
+                domain: process.env.NODE_ENV === 'production' ? 'https://lista-friendly-10.onrender.com' : undefined,
+                partitioned: true // Helps with ITP restrictions (iOS Safari)
             }).json({
                 user: userWithoutPassword,
                 message: "Sign In successfully"
@@ -118,8 +126,12 @@ const Google = async (req: Request, res: Response, next: NextFunction) => {
             const { password: userPassword, ...userWithoutPassword } = newUser.toObject();
             res.status(201).cookie('access_token', token, {
                 httpOnly: true,
-                secure: true,
-                sameSite: 'none',
+                secure: true, // Essential for HTTPS
+                sameSite: 'none', // Required for cross-site usage
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+                path: '/', // Accessible across all paths
+                domain: process.env.NODE_ENV === 'production' ? 'https://lista-friendly-10.onrender.com' : undefined,
+                partitioned: true // Helps with ITP restrictions (iOS Safari)
             }).json({
                 user: userWithoutPassword,
                 message: user ? 'Signed in successfully' : 'Account created and signed in'
