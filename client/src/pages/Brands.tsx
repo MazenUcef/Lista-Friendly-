@@ -12,7 +12,9 @@ const Brands = () => {
     const { posts, readStatus, readError, fetchPosts } = useReadPosts();
     const [filteredBrands, setFilteredBrands] = useState<Post[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [favorites, setFavorites] = useState<string[]>([]);
+
+
+    const favorites: string[] = [];
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -59,12 +61,6 @@ const Brands = () => {
     }, []);
 
 
-
-    const toggleFavorite = (id: string) => {
-        setFavorites(prev =>
-            prev.includes(id) ? prev.filter(favId => favId !== id) : [...prev, id]
-        );
-    };
 
     // Filter by search term and category
     const applyFilters = () => {
@@ -183,7 +179,6 @@ const Brands = () => {
                 ) : (
                     <BrandCard
                         filteredBrands={filteredBrands}
-                        favorites={favorites}
                     />
                 )}
 

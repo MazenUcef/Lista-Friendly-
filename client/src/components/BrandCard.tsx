@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router';
 
 interface BrandCardProps {
     filteredBrands: Post[];
-    favorites: string[];
+    favorites?: string[];
 }
 
 const BrandCard = ({ filteredBrands }: BrandCardProps) => {

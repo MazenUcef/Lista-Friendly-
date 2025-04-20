@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Link, useNavigate } from 'react-router';
-import { FaPlus } from 'react-icons/fa';
+import {  useNavigate } from 'react-router';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from 'flowbite-react';
 import { motion } from 'framer-motion';
 import { useAllComments, useDeleteComment } from '../api/commentApi';
@@ -22,7 +21,6 @@ export interface Comment {
 const DashComments = () => {
     const { allComments, status, error, fetchAllComments } = useAllComments();
     const { deleteComment, deleteError } = useDeleteComment();
-    const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [commentsPerPage] = useState(10);
     const [showDeleteModal, setShowDeleteModal] = useState(false);

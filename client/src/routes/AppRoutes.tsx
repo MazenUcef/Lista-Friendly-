@@ -7,7 +7,6 @@ import Categories from "../pages/Categories";
 import BrandDetails from "../pages/BrandDetails";
 import AboutUs from "../pages/AboutUs";
 import DashboardLayOut from "../pages/DashboardLayOut";
-import Dashboard from "../pages/Dashboard";
 import Profile from "../pages/Profile";
 import PrivateRoute from "../components/PrivateRoute";
 import CreateBrand from "../pages/CreateBrand";
@@ -19,6 +18,7 @@ import Favorites from "../pages/Favorites";
 import UpdatePostPage from "../pages/UpdatePostPage";
 import DashUsers from "../pages/DashUsers";
 import DashComments from "../pages/DashComments";
+import Dashboard from "../pages/Dashboard";
 
 
 const AppRoutes = () => {

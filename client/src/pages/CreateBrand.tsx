@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { RootState } from '../store';
 import { useCreatePost } from '../api/postsApi';
+import { CATEGORIES } from '../constants';
 
 type SocialLinks = {
     instagram?: string;
@@ -31,15 +32,6 @@ const CreateBrand = () => {
     const { control, handleSubmit, formState: { errors }, register, watch, reset } = useForm<FormData>();
     const { createStatus, createError, createNewPost } = useCreatePost();
     const imagePreview = watch("image")?.[0];
-    const categories = [
-        'Fashion',
-        'Food & Beverage',
-        'Home Goods',
-        'Technology',
-        'Beauty',
-        'Health & Wellness',
-        'Other'
-    ];
     const egyptCities: string[] = [
         "Cairo",
         "Alexandria",
@@ -281,7 +273,7 @@ const CreateBrand = () => {
                                                 className="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-full absolute mt-1 max-h-60 overflow-y-auto"
                                             >
                                                 <ul className="py-2 text-sm text-gray-700">
-                                                    {categories.map((category) => (
+                                                    {CATEGORIES.map((category) => (
                                                         <li key={category}>
                                                             <button
                                                                 type="button"
