@@ -8,6 +8,7 @@ import GreenOrderBag from '../assets/images/GreenOrderBag.png';
 import ButterFly from '../assets/images/butterFly.png';
 import WhiteButterFly from '../assets/images/WhiteButterFly.png';
 import lamp from '../assets/images/lamp.png';
+import { Link } from "react-router";
 
 const Greeting = () => {
     const motionImages = [
@@ -152,13 +153,12 @@ const Greeting = () => {
                 </motion.div>
 
                 <motion.div variants={leftItemVariants}>
-                    <motion.button
+                    <Link
+                        to={'/brands'}
                         className="w-[10rem] mt-10 md:mt-0 cursor-pointer hover:bg-[#71BE10] text-[16px] font-extrabold text-white h-[2.625rem] bg-[#71BE63] rounded-xl"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
                     >
                         Shop Now
-                    </motion.button>
+                    </Link>
                 </motion.div>
 
                 <motion.div className="w-full flex md:hidden justify-end mt-5" variants={fadeInUp}>
