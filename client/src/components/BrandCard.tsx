@@ -5,6 +5,8 @@ import { useReadFavorites, useToggleFavorite } from '../api/favoriteApi';
 import { useState } from 'react';
 import SocialMediaIcons from './SocialMediaIcons';
 import { useNavigate } from 'react-router';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 interface BrandCardProps {
     filteredBrands: Post[];
@@ -12,6 +14,7 @@ interface BrandCardProps {
 }
 
 const BrandCard = ({ filteredBrands }: BrandCardProps) => {
+    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
     const { toggleFavoritePost } = useToggleFavorite();
     const { fetchFavorites } = useReadFavorites();
     const [loadingPostId, setLoadingPostId] = useState<string | null>(null);
@@ -19,6 +22,10 @@ const BrandCard = ({ filteredBrands }: BrandCardProps) => {
     const navigate = useNavigate()
 
     const handleToggleFavorite = async (id: string) => {
+        if (!isAuthenticated) {
+            navigate('/signin')
+            return
+        }
         try {
             setLoadingPostId(id);
             await toggleFavoritePost(id);

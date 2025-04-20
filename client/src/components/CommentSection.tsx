@@ -5,11 +5,14 @@ import StarRating from './StarRating';
 import { useAddComment, useGetComments } from '../api/commentApi';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import { useNavigate } from 'react-router';
 
 export const CommentSection = ({ postId }: { postId: string }) => {
+    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
     const user = useSelector((state: RootState) => state.auth.user);
     const [newComment, setNewComment] = useState('');
     const [rating, setRating] = useState(0);
+    const navigate = useNavigate();
 
     const {
         comments,
@@ -37,6 +40,10 @@ export const CommentSection = ({ postId }: { postId: string }) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!isAuthenticated) {
+            navigate('/signin')
+            return
+        }
         if (!newComment.trim() || rating === 0) {
             toast.error('Please provide both a rating and comment');
             return;
@@ -193,8 +200,8 @@ export const CommentSection = ({ postId }: { postId: string }) => {
                             key={page}
                             onClick={() => fetchComments({ postId, page, limit: 5 })}
                             className={`px-4 py-2 rounded-lg cursor-pointer ${pagination.currentPage === page
-                                    ? 'bg-[#71BE63] text-white'
-                                    : 'bg-gray-200 text-gray-700'
+                                ? 'bg-[#71BE63] text-white'
+                                : 'bg-gray-200 text-gray-700'
                                 }`}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}

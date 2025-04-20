@@ -8,9 +8,12 @@ import { toast } from 'react-hot-toast';
 import SocialMediaIcons from '../components/SocialMediaIcons';
 import { Post } from '../redux/postSlice';
 import { CommentSection } from '../components/CommentSection';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 const BrandDetails = () => {
     const { postId } = useParams();
+    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
     const navigate = useNavigate();
     const { posts, readStatus, readError, fetchPosts } = useReadPosts();
     const { toggleFavoritePost } = useToggleFavorite();
@@ -35,6 +38,10 @@ const BrandDetails = () => {
 
     // Handle favorite toggle
     const handleToggleFavorite = async () => {
+        if (!isAuthenticated) {
+            navigate('/signin')
+            return
+        }
         try {
             setLoading(true);
             if (!postId) return;
