@@ -16,8 +16,7 @@
       "@models/*": ["src/models/*"],
       "@routes/*": ["src/routes/*"]
     },
-    "types": ["node"],
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts"]
