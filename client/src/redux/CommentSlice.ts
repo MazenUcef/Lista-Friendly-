@@ -57,7 +57,7 @@ export const addComment = createAsyncThunk(
     'comments/addComment',
     async ({ postId, rating, comment, userId, userName, userAvatar }: AddCommentParams, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/comments/addComment`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/comments/addComment`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -86,7 +86,7 @@ export const getComments = createAsyncThunk(
             query.append('page', page.toString());
             query.append('limit', limit.toString());
 
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/comments/getComments/${postId}?${query.toString()}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/comments/getComments/${postId}?${query.toString()}`, {
                 credentials: 'include',
                 method: 'GET',
             });
@@ -109,7 +109,7 @@ export const deleteComment = createAsyncThunk(
     'comments/deleteComments',
     async (commentId: string, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/comments/deleteComments/${commentId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/comments/deleteComments/${commentId}`, {
                 method: 'DELETE',
                 credentials: 'include',
                 headers: {
@@ -140,7 +140,7 @@ export const getAllComments = createAsyncThunk(
             query.append('page', page.toString());
             query.append('limit', limit.toString());
 
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/comments/getAllComments?${query.toString()}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/comments/getAllComments?${query.toString()}`, {
                 credentials: 'include',
                 method: 'GET',
             });

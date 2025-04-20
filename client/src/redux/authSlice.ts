@@ -94,7 +94,7 @@ export const signupUser = createAsyncThunk(
     'auth/signup',
     async (userData: UserRegistration, { rejectWithValue }) => {
         try {
-            return await authApi('/api/auth/signup', userData);
+            return await authApi('api/auth/signup', userData);
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Registration failed');
         }
@@ -105,7 +105,7 @@ export const signinUser = createAsyncThunk(
     'auth/signin',
     async (userData: UserCredentials, { rejectWithValue }) => {
         try {
-            return await authApi('/api/auth/signin', userData);
+            return await authApi('api/auth/signin', userData);
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Login failed');
         }
@@ -117,7 +117,7 @@ export const signoutUser = createAsyncThunk(
     'user/signout',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/signout`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/user/signout`, {
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ export const googleAuth = createAsyncThunk(
     'auth/google',
     async (userData: GoogleAuthData, { rejectWithValue }) => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/auth/google`, {
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
@@ -187,7 +187,7 @@ export const updateUser = createAsyncThunk(
             // Append file if exists
             if (updateData.file) formData.append('profilePicture', updateData.file);
 
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/update/${updateData.userId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/user/update/${updateData.userId}`, {
                 credentials: 'include',
                 method: 'PUT',
                 body: formData,
@@ -212,7 +212,7 @@ export const deleteUser = createAsyncThunk(
     'user/delete',
     async (userId: string, { rejectWithValue }) => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/delete/${userId}`,
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/user/delete/${userId}`,
                 {
                     credentials: 'include',
                     method: 'DELETE',
@@ -255,7 +255,7 @@ export const getUsers = createAsyncThunk(
             if (params.sort) queryParams.append('sort', params.sort);
 
             const response = await fetch(
-                `${import.meta.env.VITE_API_BASE_URL}/api/user/getUser?${queryParams.toString()}`,
+                `${import.meta.env.VITE_API_BASE_URL}api/user/getUser?${queryParams.toString()}`,
                 {
                     credentials: 'include',
                     headers: {
@@ -285,7 +285,7 @@ export const deleteUsers = createAsyncThunk(
     async (userId: string, { rejectWithValue }) => {
         try {
             const res = await fetch(
-                `${import.meta.env.VITE_API_BASE_URL}/api/user/admin-delete/${userId}`,
+                `${import.meta.env.VITE_API_BASE_URL}api/user/admin-delete/${userId}`,
                 {
                     credentials: 'include',
                     method: 'DELETE',
