@@ -152,10 +152,10 @@ const Greeting = () => {
                     />
                 </motion.div>
 
-                <motion.div variants={leftItemVariants}>
+                <motion.div className="mt-14 md:mt-0" variants={leftItemVariants}>
                     <Link
                         to={'/brands'}
-                        className="w-[10rem] mt-14 md:mt-0 cursor-pointer hover:bg-[#71BE10] text-[16px] font-extrabold text-white p-3 h-[2.625rem] bg-[#71BE63] rounded-xl"
+                        className="w-[10rem] mt-10 md:mt-0 cursor-pointer hover:bg-[#71BE10] text-[16px] font-extrabold text-white p-3 h-[2.625rem] bg-[#71BE63] rounded-xl"
                     >
                         Shop Now
                     </Link>
