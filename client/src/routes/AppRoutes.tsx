@@ -16,6 +16,9 @@ import { AuthRoute } from "../components/AuthRoutes";
 import AdminPosts from "../pages/DashBrands";
 import Brands from "../pages/Brands";
 import Favorites from "../pages/Favorites";
+import UpdatePostPage from "../pages/UpdatePostPage";
+import DashUsers from "../pages/DashUsers";
+import DashComments from "../pages/DashComments";
 
 
 const AppRoutes = () => {
@@ -47,13 +50,16 @@ const AppRoutes = () => {
                                 <Route path="/dashboard/manage" element={<Dashboard />} />
                                 <Route path="/dashboard/create" element={<CreateBrand />} />
                                 <Route path="/dashboard/brands" element={<AdminPosts />} />
+                                <Route path="/dashboard/comments" element={<DashComments />} />
+                                <Route path="/dashboard/users" element={<DashUsers />} />
+                                <Route path="/dashboard/posts-update/:postId" element={<UpdatePostPage />} />
                             </Route>
                         </Route>
                         <Route path="/brands" element={<Brands />} />
+                        <Route path="/favorites" element={<Favorites />} />
+                        <Route path="/brand-details/:postId" element={<BrandDetails />} />
                     </Route>
-                    <Route path="/favorites" element={<Favorites />} />
                     <Route path="/aboutus" element={<AboutUs />} />
-                    <Route path="/brand-details/:postId" element={<BrandDetails />} />
                     <Route path="*" element={<Navigate to="/home" replace />} />
                 </Route>
             </Routes>

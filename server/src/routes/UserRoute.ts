@@ -20,7 +20,8 @@ export const upload = multer({
 router.post("/signout", UserController.Signout)
 router.put("/update/:userId", verifyToken, upload.single("profilePicture"), validateUpdate, UserController.UpdateUser)
 router.delete("/delete/:userId", verifyToken, UserController.DeleteUser)
-
+router.get('/getUser', verifyToken, UserController.GetUsers)
+router.delete('/admin-delete/:userId', verifyToken, UserController.DeleteUsers);
 
 
 export default router

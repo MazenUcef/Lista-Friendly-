@@ -115,6 +115,111 @@ const DeleteUser = async (req: Request, res: Response, next: NextFunction) => {
 
 
 
+
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 100;
+
+const GetUsers = async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user?.isAdmin) {
+        res.status(403).json({ message: "You are not allowed to see all users" })
+        return
+    }
+    try {
+        // Input validation
+        const startIndex = Math.max(0, parseInt(req.query?.startIndex as string) || 0);
+        const limit = Math.min(MAX_LIMIT, parseInt(req.query?.limit as string) || DEFAULT_LIMIT);
+        const sortDirection = req.query?.sort === "asc" ? 1 : -1;
+
+        // Query construction
+        const query = User.find().select('-password');
+
+        // Sorting and pagination
+        const users = await query
+            .sort({ createdAt: sortDirection })
+            .skip(startIndex)
+            .limit(limit);
+
+        // Counts
+        const totalUsers = await User.countDocuments();
+
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+        const lastMonthUsers = await User.countDocuments({
+            createdAt: { $gte: oneMonthAgo }
+        });
+
+        res.status(200).json({
+            message: "Users fetched successfully",
+            data: {
+                users,
+                pagination: {
+                    total: totalUsers,
+                    limit,
+                    offset: startIndex
+                },
+                stats: {
+                    lastMonth: lastMonthUsers
+                }
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+const DeleteUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // 1. Authorization check - only admin can delete any user
+        if (!req.user?.isAdmin) {
+            res.status(403).json({
+                success: false,
+                message: "You are not authorized to perform this action"
+            });
+            return;
+        }
+
+        // 2. Check if user exists before attempting deletion
+        const existingUser = await User.findById(req.params.userId);
+        if (!existingUser) {
+            res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+            return;
+        }
+
+        // 3. Prevent admin from deleting themselves (optional safety measure)
+        if (req.user.id === req.params.userId) {
+            res.status(403).json({
+                success: false,
+                message: "Admins cannot delete their own account with this endpoint"
+            });
+            return;
+        }
+
+        // 4. Perform deletion
+        const deletedUser = await User.findByIdAndDelete(req.params.userId);
+
+        // 5. Return success response
+        res.status(200).json({
+            success: true,
+            message: "User deleted successfully by admin",
+            userId: deletedUser?._id,
+            deletedUserEmail: deletedUser?.email // Optionally include some user info
+        });
+
+    } catch (error) {
+        // 6. Proper error handling
+        console.error('Error deleting user:', error);
+        return next(error);
+    }
+};
+
+
+
 const uploadImage = async (file: Express.Multer.File) => {
     const image = file;
     const base64Image = Buffer.from(image.buffer).toString("base64");
@@ -128,5 +233,7 @@ const uploadImage = async (file: Express.Multer.File) => {
 export default {
     Signout,
     UpdateUser,
-    DeleteUser
+    DeleteUser,
+    GetUsers,
+    DeleteUsers
 };

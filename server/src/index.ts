@@ -11,6 +11,7 @@ import authRoutes from './routes/AuthRoute';
 import userRoutes from './routes/UserRoute';
 import postRoutes from './routes/PostsRoute';
 import favRoutes from './routes/FavsRoute';
+import commentsRoutes from './routes/CommentRoute';
 import { v2 as cloudinary } from 'cloudinary';
 
 const app: Application = express();
@@ -64,6 +65,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/post', postRoutes)
 app.use('/api/favorites', favRoutes)
+app.use('/api/comments', commentsRoutes)
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {

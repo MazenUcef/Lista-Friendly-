@@ -212,6 +212,95 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 
+
+const updatePost = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { postId, userId } = req.params;
+
+        // Authorization check - user must be authenticated
+        if (!req.user) {
+            res.status(401).json({
+                success: false,
+                message: "Not authenticated"
+            });
+            return
+        }
+
+        // Check if the requesting user matches the userId parameter or is admin
+        if (req.user.id !== userId && !req.user.isAdmin) {
+            res.status(403).json({
+                success: false,
+                message: "Unauthorized - You can only update your own posts"
+            });
+            return
+        }
+
+        // Check if post exists
+        const existingPost = await Post.findById(postId);
+        if (!existingPost) {
+            res.status(404).json({
+                success: false,
+                message: "Post not found"
+            });
+            return
+        }
+
+        // Verify post ownership if not admin
+        if (!req.user.isAdmin && existingPost.userId.toString() !== req.user.id) {
+            res.status(403).json({
+                success: false,
+                message: "Unauthorized - This post doesn't belong to you"
+            });
+            return
+        }
+
+        // Handle image upload if exists
+        let brandPictureUrl = existingPost.brandPicture;
+        if (req.file) {
+            brandPictureUrl = await uploadImage(req.file as Express.Multer.File);
+        }
+
+        // Prepare update data
+        const updateData: any = {
+            ...req.body,
+            brandPicture: brandPictureUrl
+        };
+
+        // Generate new slug if name is being updated
+        if (req.body.name) {
+            const slug = req.body.name
+                .split(' ')
+                .join('-')
+                .toLowerCase()
+                .replace(/[^a-zA-Z0-9-]/g, '');
+            updateData.slug = slug;
+        }
+
+        // Update the post
+        const updatedPost = await Post.findByIdAndUpdate(
+            postId,
+            { $set: updateData },
+            { new: true }
+        ).select('-__v'); // Exclude __v field
+
+        res.status(200).json({
+            success: true,
+            message: "Post updated successfully",
+            post: updatedPost
+        });
+
+    } catch (error: any) {
+        if (error.code === 11000 && error.keyPattern?.slug) {
+            res.status(400).json({
+                success: false,
+                message: "A post with this name already exists"
+            });
+            return
+        }
+        next(error);
+    }
+};
+
 const uploadImage = async (file: Express.Multer.File) => {
     const image = file;
     const base64Image = Buffer.from(image.buffer).toString("base64");
@@ -224,5 +313,6 @@ const uploadImage = async (file: Express.Multer.File) => {
 export default {
     createPost,
     readPosts,
-    deletePost
+    deletePost,
+    updatePost
 };

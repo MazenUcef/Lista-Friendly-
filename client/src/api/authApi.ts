@@ -1,4 +1,4 @@
-import { deleteUser, googleAuth, GoogleAuthData, signinUser, signoutUser, signupUser, updateUser, User, UserCredentials, UserRegistration } from "../redux/authSlice";
+import { deleteUser, deleteUsers, getUsers, googleAuth, GoogleAuthData, signinUser, signoutUser, signupUser, updateUser, UserCredentials, UserRegistration } from "../redux/authSlice";
 import { AppDispatch, RootState } from "../store";
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -161,5 +161,75 @@ export const useDeleteUser = () => {
         error,
         deleteAccount,
         isAuthenticated
+    };
+};
+
+
+
+
+export const useGetUsers = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { user, status, error, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+    // Add usersList to your auth state if you want to store the fetched users
+    const usersList = useSelector((state: RootState) => state.auth.usersList || []);
+    const pagination = useSelector((state: RootState) => state.auth.pagination);
+    const stats = useSelector((state: RootState) => state.auth.stats);
+
+    const fetchUsers = async (params: {
+        startIndex?: number;
+        limit?: number;
+        sort?: 'asc' | 'desc';
+    }) => {
+        try {
+            const result = await dispatch(getUsers(params)).unwrap();
+            return result;
+        } catch (error) {
+            throw typeof error === 'string' ? error : 'Failed to fetch users';
+        }
+    };
+
+    return {
+        users: usersList,
+        pagination,
+        stats,
+        authStatus: status,
+        error,
+        fetchUsers,
+        isAuthenticated,
+        currentUser: user // The currently logged-in user
+    };
+}
+
+
+
+
+
+
+export const useDeleteUsers = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { user, status, error, isAuthenticated, usersList } = useSelector((state: RootState) => state.auth);
+
+    const deleteUserByAdmin = async (userId: string) => {
+        try {
+            const result = await dispatch(deleteUsers(userId)).unwrap();
+
+            
+            return {
+                ...result,
+                deletedUserId: userId
+            };
+        } catch (error) {
+            throw typeof error === 'string' ? error : 'Failed to delete user account';
+        }
+    };
+
+    return {
+        user,
+        authStatus: status,
+        error,
+        deleteUserByAdmin,
+        isAuthenticated,
+        usersList
     };
 };

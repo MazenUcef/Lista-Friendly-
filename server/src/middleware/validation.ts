@@ -133,3 +133,14 @@ export const validatePostUpdate: RequestHandler[] = [
         .isURL().withMessage('Brand picture must be a valid URL'),
     handleValidationErrors
 ];
+
+
+export const validateComment: RequestHandler[] = [
+    body('rating')
+        .notEmpty().withMessage('Rating is required')
+        .isInt({ min: 1, max: 5 }).withMessage('Rating must be an integer between 1 and 5'),
+
+    body('comment')
+        .notEmpty().withMessage('Comment is required'),
+    handleValidationErrors
+];

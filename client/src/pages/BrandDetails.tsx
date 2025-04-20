@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import SocialMediaIcons from '../components/SocialMediaIcons';
 import { Post } from '../redux/postSlice';
+import { CommentSection } from '../components/CommentSection';
 
 const BrandDetails = () => {
     const { postId } = useParams();
@@ -190,6 +191,9 @@ const BrandDetails = () => {
                             <SocialMediaIcons links={brand.socialLinks} />
                         </motion.div>
                     </div>
+                    {brand && (
+                        <CommentSection postId={brand._id} />
+                    )}
                 </motion.div>
             </div>
         </motion.div>

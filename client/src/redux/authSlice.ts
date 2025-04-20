@@ -7,13 +7,35 @@ export interface User {
     email?: string;
     profilePicture?: string;
     isAdmin?: boolean;
+    createdAt?: string; // Added createdAt property
 }
 
 interface AuthState {
     user: User | null;
+    usersList: User[]; // For storing fetched users
+    pagination: {
+        total: number;
+        limit: number;
+        offset: number;
+    } | null;
+    stats: {
+        lastMonth: number;
+    } | null;
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
     isAuthenticated: boolean;
+}
+
+export interface UserListResponse {
+    users: User[];
+    pagination: {
+        total: number;
+        limit: number;
+        offset: number;
+    };
+    stats: {
+        lastMonth: number;
+    };
 }
 
 export interface GoogleAuthData {
@@ -34,6 +56,15 @@ export interface UserRegistration extends UserCredentials {
 
 const initialState: AuthState = {
     user: null,
+    usersList: [],
+    pagination: {
+        total: 0,
+        limit: 0,
+        offset: 0,
+    },
+    stats: {
+        lastMonth: 0,
+    },
     status: "idle",
     error: null,
     isAuthenticated: false
@@ -206,6 +237,83 @@ export const deleteUser = createAsyncThunk(
 
 
 
+export const getUsers = createAsyncThunk(
+    'users/getAll',
+    async (
+        params: {
+            startIndex?: number;
+            limit?: number;
+            sort?: 'asc' | 'desc';
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            // Construct query parameters
+            const queryParams = new URLSearchParams();
+            if (params.startIndex !== undefined) queryParams.append('startIndex', params.startIndex.toString());
+            if (params.limit !== undefined) queryParams.append('limit', params.limit.toString());
+            if (params.sort) queryParams.append('sort', params.sort);
+
+            const response = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL}/api/user/getUser?${queryParams.toString()}`,
+                {
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to fetch users');
+            }
+
+            const responseData = await response.json();
+            return responseData.data; // Note: Added .data to match your backend response structure
+        } catch (error: any) {
+            return rejectWithValue(error.message || 'Failed to fetch users');
+        }
+    }
+);
+
+
+
+
+export const deleteUsers = createAsyncThunk(
+    'users/deleteByAdmin',
+    async (userId: string, { rejectWithValue }) => {
+        try {
+            const res = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL}/api/user/admin-delete/${userId}`,
+                {
+                    credentials: 'include',
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'User deletion by admin failed');
+            }
+
+            const data = await res.json();
+            return {
+                data,
+                deletedUserId: userId // Include the deleted user ID in the response
+            };
+        } catch (error: any) {
+            return rejectWithValue(error.message || 'User deletion by admin failed');
+        }
+    }
+);
+
+
+
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -286,7 +394,7 @@ const authSlice = createSlice({
                 state.isAuthenticated = false;
             })
 
-            
+
             // Update user reducers
             .addCase(updateUser.pending, (state) => {
                 state.status = 'loading';
@@ -317,7 +425,44 @@ const authSlice = createSlice({
             .addCase(deleteUser.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload as string;
-            });
+            })
+
+
+            .addCase(getUsers.pending, (state) => {
+                state.status = 'loading';
+                state.error = null;
+            })
+            .addCase(getUsers.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.usersList = action.payload.users;
+                state.pagination = action.payload.pagination;
+                state.stats = action.payload.stats;
+            })
+            .addCase(getUsers.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload as string;
+            })
+
+
+
+            .addCase(deleteUsers.pending, (state) => {
+                state.status = 'loading';
+                state.error = null;
+            })
+            .addCase(deleteUsers.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.usersList = state.usersList.filter(user => user._id !== action.payload.deletedUserId);
+                if (state.user?._id === action.payload.deletedUserId) {
+                    state.user = null;
+                    state.isAuthenticated = false;
+                }
+                toast.success(action.payload.data.message || 'User deleted successfully by admin');
+            })
+            .addCase(deleteUsers.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload as string;
+                toast.error(action.payload as string || 'Failed to delete user');
+            })
     }
 });
 

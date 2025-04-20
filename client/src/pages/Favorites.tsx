@@ -214,7 +214,7 @@ const FavoritesPage = () => {
 
                 {/* Social Links */}
                 {favorite.socialLinks && favorite.socialLinks.length > 0 && (
-                  <div className="flex space-x-3">
+                  <div className="flex justify-start items-center w-full space-x-3">
                     {favorite.socialLinks.map((link, index) => (
                       <motion.a
                         key={index}
@@ -222,7 +222,7 @@ const FavoritesPage = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ y: -2 }}
-                        className="text-gray-500 hover:text-[#71BE63] transition"
+                        className="text-gray-500 flex gap-2 items-center hover:text-[#71BE63] transition"
                       >
                         {link.includes('instagram') && <FaInstagram className="text-xl" />}
                         {link.includes('twitter') && <FaTwitter className="text-xl" />}

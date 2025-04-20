@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
-import { createPost, deletePost, readPosts } from '../redux/postSlice';
+import { createPost, deletePost, readPosts, updatePost } from '../redux/postSlice';
 
 
 
@@ -95,7 +95,35 @@ export const useDeletePost = () => {
 
 
 
+export const useUpdatePost = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { status, error } = useSelector((state: RootState) => state.post);
 
+    const updateExistingPost = async (postData: {
+        postId: string;
+        userId: string;
+        name?: string;
+        description?: string;
+        location?: string;
+        socialLinks?: string[];
+        brandPicture?: string;
+        category?: string;
+        file?: File;
+    }) => {
+        try {
+            const result = await dispatch(updatePost(postData)).unwrap();
+            return result;
+        } catch (error) {
+            throw typeof error === 'string' ? error : 'Failed to update post';
+        }
+    };
+
+    return {
+        updateStatus: status,
+        updateError: error,
+        updateExistingPost,
+    };
+};
 
 
 

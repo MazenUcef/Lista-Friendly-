@@ -28,6 +28,7 @@ const initialState: UserState = {
     error: null,
 };
 
+
 export const updateUser = createAsyncThunk(
     'user/updateUser',
     async (updateData: UpdateUserData, { rejectWithValue }) => {
@@ -46,6 +47,10 @@ export const updateUser = createAsyncThunk(
         }
     }
 );
+
+
+
+
 
 const userSlice = createSlice({
     name: 'user',

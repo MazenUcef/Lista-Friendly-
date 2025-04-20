@@ -2,109 +2,116 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router';
 import { FaPlus } from 'react-icons/fa';
-import { useDeletePost, useReadPosts } from '../api/postsApi';
-import { Post } from '../redux/postSlice';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from 'flowbite-react';
 import { motion } from 'framer-motion';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import { useAllComments, useDeleteComment } from '../api/commentApi';
 
-const AdminPosts = () => {
-    const { posts, readStatus, readError, fetchPosts } = useReadPosts();
-    const userId = useSelector((state: RootState) => state.auth.user?._id)
+// types/comment.ts
+export interface Comment {
+    _id: string;
+    postId: string;
+    userId: string;
+    userName: string;
+    userAvatar?: string;
+    rating: number;
+    comment: string;
+    createdAt: string | Date;
+    updatedAt?: string | Date;
+}
+
+const DashComments = () => {
+    const { allComments, status, error, fetchAllComments } = useAllComments();
+    const { deleteComment, deleteError } = useDeleteComment();
     const [searchTerm, setSearchTerm] = useState('');
-    const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [postsPerPage] = useState(10);
+    const [commentsPerPage] = useState(10);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const navigate = useNavigate()
-    const [postId, setPostId] = useState('');
-    const { deleteExistingPost } = useDeletePost();
+    const navigate = useNavigate();
+    const [commentId, setCommentId] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
 
-
+    // Fetch all comments on component mount
     useEffect(() => {
-        fetchPosts({
-            limit: 100,
-            order: 'desc'
+        fetchAllComments({ page: 1, limit: 10 }).catch((err) => {
+            toast.error(typeof err === 'string' ? err : 'Failed to fetch comments');
         });
     }, []);
 
-    useEffect(() => {
-        if (posts) {
-            let results = [...posts];
-            if (searchTerm) {
-                results = results.filter(post =>
-                    post.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    post.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    post.category.toLowerCase().includes(searchTerm.toLowerCase())
-                );
-            }
-            setFilteredPosts(results);
-        }
-    }, [posts, searchTerm]);
 
-    useEffect(() => {
-        if (readError) {
-            toast.error(readError);
-        }
-    }, [readError]);
 
-    const handleDeleteClick = (postId: string, e: React.MouseEvent) => {
+    // Display read error
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
+
+    // Display delete error
+    useEffect(() => {
+        if (deleteError) {
+            toast.error(deleteError);
+        }
+    }, [deleteError]);
+
+    const handleDeleteClick = (commentId: string, e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        setPostId(postId);
+        setCommentId(commentId);
         setShowDeleteModal(true);
     };
-    const handleNavigateToEditPage = (postId: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        navigate(`/dashboard/posts-update/${postId}`)
-    };
+
     const handleNavigateToPostPage = (postId: string, e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        navigate(`/brand-details/${postId}`, { state: postId })
+        navigate(`/brand-details/${postId}`, { state: { postId } });
     };
 
     const confirmDelete = async () => {
         setIsDeleting(true);
         try {
-            if (userId) {
-                await deleteExistingPost(postId, userId);
+            const success = await deleteComment(commentId);
+            if (success) {
+                await fetchAllComments({ page: 1, limit: 10 });
+            } else {
+                toast.error('Failed to delete comment');
             }
         } catch (error) {
-            toast.error('Failed to delete post');
+            toast.error('Failed to delete comment');
         } finally {
             setIsDeleting(false);
             setShowDeleteModal(false);
+            setCommentId('');
         }
     };
 
     const cancelDelete = () => {
         setShowDeleteModal(false);
+        setCommentId('');
     };
 
-    const formatDate = (dateString: string) => {
-        if (!dateString) return 'N/A';
+    const formatDate = (date: string | Date) => {
+        if (!date) return 'N/A';
         const options: Intl.DateTimeFormatOptions = {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         };
-        return new Date(dateString).toLocaleDateString(undefined, options);
+        return new Date(date).toLocaleDateString(undefined, options);
     };
 
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-
-    const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+    // Pagination logic
+    const indexOfLastComment = currentPage * commentsPerPage;
+    const indexOfFirstComment = indexOfLastComment - commentsPerPage;
+    const currentComments = allComments.slice(indexOfFirstComment, indexOfLastComment);
+    const totalPages = Math.ceil(allComments.length / commentsPerPage);
 
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
+        fetchAllComments({ page: pageNumber, limit: commentsPerPage }).catch((err) => {
+            toast.error(typeof err === 'string' ? err : 'Failed to fetch comments');
+        });
     };
 
     // Animation variants
@@ -113,9 +120,9 @@ const AdminPosts = () => {
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.1
-            }
-        }
+                staggerChildren: 0.1,
+            },
+        },
     };
 
     const itemVariants = {
@@ -124,9 +131,9 @@ const AdminPosts = () => {
             y: 0,
             opacity: 1,
             transition: {
-                duration: 0.5
-            }
-        }
+                duration: 0.5,
+            },
+        },
     };
 
     return (
@@ -142,7 +149,7 @@ const AdminPosts = () => {
                 <ModalBody>
                     <div className="space-y-6">
                         <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-                            Are you sure you want to delete this post? This action cannot be undone.
+                            Are you sure you want to delete this comment? This action cannot be undone.
                         </p>
                     </div>
                 </ModalBody>
@@ -152,7 +159,8 @@ const AdminPosts = () => {
                         whileTap={{ scale: 0.95 }}
                         onClick={confirmDelete}
                         disabled={isDeleting}
-                        className={`text-white bg-[#71BE63] cursor-pointer focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ${isDeleting ? 'opacity-50' : ''}`}
+                        className={`text-white bg-[#71BE63] cursor-pointer focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ${isDeleting ? 'opacity-50' : ''
+                            }`}
                     >
                         {isDeleting ? 'Deleting...' : 'Delete'}
                     </motion.button>
@@ -160,7 +168,7 @@ const AdminPosts = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={cancelDelete}
-                        className="py-2.5 px-5 ms-3 text-sm font-medium  cursor-pointer text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-100"
+                        className="py-2.5 px-5 ms-3 text-sm font-medium cursor-pointer text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-100"
                     >
                         Cancel
                     </motion.button>
@@ -176,52 +184,20 @@ const AdminPosts = () => {
                             transition={{ duration: 0.5 }}
                             className="text-3xl md:text-4xl font-bold text-[#71BE63] mb-8 text-start"
                         >
-                            Brands Management
+                            Comments Management
                         </motion.h1>
                         <p className="text-gray-600">
-                            {filteredPosts.length} {filteredPosts.length === 1 ? 'brand' : 'brands'} found
+                            {allComments.length}{' '}
+                            {allComments.length === 1 ? 'comment' : 'comments'} found
                         </p>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                        <motion.div
-                            whileHover={{ scale: 1.01 }}
-                            className="relative flex-grow"
-                        >
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                </svg>
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Search brand..."
-                                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#71BE63] focus:border-transparent"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </motion.div>
-
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Link
-                                to="/dashboard/create"
-                                className="flex items-center justify-center px-4 py-2 bg-[#71BE63] text-white rounded-lg hover:bg-[#5fa955] transition-colors"
-                            >
-                                <FaPlus className="mr-2" />
-                                New Brand
-                            </Link>
-                        </motion.div>
                     </div>
                 </div>
 
-                {readStatus === 'loading' ? (
+                {status === 'loading' ? (
                     <div className="flex justify-center items-center h-64">
                         <motion.div
                             animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                            transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
                             className="rounded-full h-12 w-12 border-t-2 border-b-2 border-[#71BE63]"
                         ></motion.div>
                     </div>
@@ -236,44 +212,43 @@ const AdminPosts = () => {
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
                                     <th scope="col" className="px-6 py-3">
-                                        Brand Image
+                                        User Avatar
                                     </th>
                                     <th scope="col" className="px-6 py-3">
-                                        Brand Name
+                                        User Name
                                     </th>
                                     <th scope="col" className="px-6 py-3">
-                                        Description
+                                        Comment
                                     </th>
                                     <th scope="col" className="px-6 py-3">
-                                        Category
+                                        Rating
                                     </th>
                                     <th scope="col" className="px-6 py-3">
-                                        Updated At
+                                        Created At
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-right">
                                         Actions
                                     </th>
                                 </tr>
                             </thead>
-                            <motion.tbody
-                                variants={containerVariants}
-                                initial="hidden"
-                                animate="visible"
-                            >
-                                {currentPosts.length > 0 ? (
-                                    currentPosts.map((post) => (
+                            <motion.tbody variants={containerVariants} initial="hidden" animate="visible">
+                                {currentComments.length > 0 ? (
+                                    currentComments.map((comment) => (
                                         <motion.tr
-                                            onClick={(e) => handleNavigateToPostPage(post._id, e)}
-                                            key={post._id}
+                                            onClick={(e) => handleNavigateToPostPage(comment.postId, e)}
+                                            key={comment._id}
                                             variants={itemVariants}
-                                            whileHover={{ scale: 1.01, boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }}
+                                            whileHover={{
+                                                scale: 1.01,
+                                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                            }}
                                             className="bg-white hover:bg-gray-50 cursor-pointer"
                                         >
                                             <td className="px-6 py-4">
-                                                {post.brandPicture ? (
+                                                {comment.userAvatar ? (
                                                     <motion.img
-                                                        src={post.brandPicture}
-                                                        alt={post.name}
+                                                        src={comment.userAvatar}
+                                                        alt={comment.userName}
                                                         className="w-10 h-10 rounded-full object-cover"
                                                         whileHover={{ scale: 1.2 }}
                                                     />
@@ -283,39 +258,26 @@ const AdminPosts = () => {
                                                     </div>
                                                 )}
                                             </td>
-                                            <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                                {post.name}
+                                            <th
+                                                scope="row"
+                                                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                                            >
+                                                {comment.userName}
                                             </th>
-                                            <td className="px-6 py-4 max-w-[2rem] truncate">
-                                                {post.description}
+                                            <td className="px-6 py-4 max-w-[20rem] truncate">
+                                                {comment.comment}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                                    {post.category || 'Uncategorized'}
+                                                    {comment.rating} / 5
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                {formatDate(post.updatedAt || post.createdAt || '')}
-                                            </td>
+                                            <td className="px-6 py-4">{formatDate(comment.createdAt)}</td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex justify-end items-center space-x-2">
-                                                    <motion.div
-                                                        whileHover={{ scale: 1.2 }}
-                                                        whileTap={{ scale: 0.9 }}
-                                                    >
+                                                    <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
                                                         <button
-                                                            onClick={(e) => handleNavigateToEditPage(post._id, e)}
-                                                            className="font-bold text-xs text-[#71BE63] p-1 cursor-pointer"
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                    </motion.div>
-                                                    <motion.div
-                                                        whileHover={{ scale: 1.2 }}
-                                                        whileTap={{ scale: 0.9 }}
-                                                    >
-                                                        <button
-                                                            onClick={(e) => handleDeleteClick(post._id, e)}
+                                                            onClick={(e) => handleDeleteClick(comment._id, e)}
                                                             className="font-bold text-xs text-[#71BE63] p-1 cursor-pointer"
                                                         >
                                                             Delete
@@ -326,12 +288,9 @@ const AdminPosts = () => {
                                         </motion.tr>
                                     ))
                                 ) : (
-                                    <motion.tr
-                                        variants={itemVariants}
-                                        className="bg-white border-b"
-                                    >
+                                    <motion.tr variants={itemVariants} className="bg-white border-b">
                                         <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                                            No posts found
+                                            No comments found
                                         </td>
                                     </motion.tr>
                                 )}
@@ -341,12 +300,9 @@ const AdminPosts = () => {
                 )}
 
                 {/* Pagination */}
-                <nav aria-label="Page navigation example" className='w-full flex justify-end mt-4'>
+                <nav aria-label="Page navigation example" className="w-full flex justify-end mt-4">
                     <ul className="inline-flex -space-x-px text-sm">
-                        <motion.li
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                        >
+                        <motion.li whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                             <button
                                 onClick={() => handlePageChange(currentPage - 1)}
                                 disabled={currentPage === 1}
@@ -356,23 +312,17 @@ const AdminPosts = () => {
                             </button>
                         </motion.li>
                         {[...Array(totalPages)].map((_, index) => (
-                            <motion.li
-                                key={index}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                            >
+                            <motion.li key={index} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                                 <button
                                     onClick={() => handlePageChange(index + 1)}
-                                    className={`flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 ${currentPage === index + 1 ? 'text-blue-600 bg-blue-50 border-blue-300' : ''}`}
+                                    className={`flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 ${currentPage === index + 1 ? 'text-blue-600 bg-blue-50 border-blue-300' : ''
+                                        }`}
                                 >
                                     {index + 1}
                                 </button>
                             </motion.li>
                         ))}
-                        <motion.li
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                        >
+                        <motion.li whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                             <button
                                 onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === totalPages}
@@ -388,4 +338,4 @@ const AdminPosts = () => {
     );
 };
 
-export default AdminPosts;
+export default DashComments;

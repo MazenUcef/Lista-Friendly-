@@ -5,6 +5,7 @@ import authReducer from './redux/authSlice';
 import userReducer from './redux/userSlice';
 import postReducer from './redux/postSlice';
 import favReducer from './redux/favSlice';
+import commentReducer from './redux/CommentSlice';
 
 const persistConfig = {
     key: "root",
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
     user: userReducer,
     post: postReducer,
     fav: favReducer,
+    comments: commentReducer,
 })
 
 

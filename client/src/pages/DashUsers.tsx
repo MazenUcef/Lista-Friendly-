@@ -1,83 +1,70 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Link, useNavigate } from 'react-router';
-import { FaPlus } from 'react-icons/fa';
-import { useDeletePost, useReadPosts } from '../api/postsApi';
-import { Post } from '../redux/postSlice';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from 'flowbite-react';
 import { motion } from 'framer-motion';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import { useDeleteUsers, useGetUsers } from '../api/authApi';
+import { User } from '../redux/authSlice';
 
-const AdminPosts = () => {
-    const { posts, readStatus, readError, fetchPosts } = useReadPosts();
-    const userId = useSelector((state: RootState) => state.auth.user?._id)
+const DashUsers = () => {
+    const { users, stats, fetchUsers, authStatus, error, currentUser } = useGetUsers();
+    const { deleteUserByAdmin } = useDeleteUsers();
     const [searchTerm, setSearchTerm] = useState('');
-    const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [postsPerPage] = useState(10);
+    const [usersPerPage] = useState(10);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const navigate = useNavigate()
-    const [postId, setPostId] = useState('');
-    const { deleteExistingPost } = useDeletePost();
+    const [userId, setUserId] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
 
-
     useEffect(() => {
-        fetchPosts({
-            limit: 100,
-            order: 'desc'
+        fetchUsers({
+            startIndex: 0,
+            limit: usersPerPage,
+            sort: 'desc'
         });
     }, []);
 
     useEffect(() => {
-        if (posts) {
-            let results = [...posts];
+        if (users) {
+            let results = [...users];
             if (searchTerm) {
-                results = results.filter(post =>
-                    post.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    post.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    post.category.toLowerCase().includes(searchTerm.toLowerCase())
+                results = results.filter(user =>
+                    user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
                 );
             }
-            setFilteredPosts(results);
+            setFilteredUsers(results);
         }
-    }, [posts, searchTerm]);
+    }, [users, searchTerm]);
 
     useEffect(() => {
-        if (readError) {
-            toast.error(readError);
+        if (error) {
+            toast.error(error);
         }
-    }, [readError]);
+    }, [error]);
 
-    const handleDeleteClick = (postId: string, e: React.MouseEvent) => {
+    const handleDeleteClick = (userId: string, e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        setPostId(postId);
+        setUserId(userId);
         setShowDeleteModal(true);
-    };
-    const handleNavigateToEditPage = (postId: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        navigate(`/dashboard/posts-update/${postId}`)
-    };
-    const handleNavigateToPostPage = (postId: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        navigate(`/brand-details/${postId}`, { state: postId })
     };
 
     const confirmDelete = async () => {
-        setIsDeleting(true);
         try {
-            if (userId) {
-                await deleteExistingPost(postId, userId);
-            }
+            setIsDeleting(true);
+            await deleteUserByAdmin(userId);
+            await fetchUsers({
+                startIndex: 0,
+                limit: usersPerPage,
+                sort: 'desc'
+            });
+
+            setShowDeleteModal(false);
         } catch (error) {
-            toast.error('Failed to delete post');
+            toast.error(typeof error === 'string' ? error : 'Failed to delete user');
         } finally {
             setIsDeleting(false);
-            setShowDeleteModal(false);
         }
     };
 
@@ -97,11 +84,11 @@ const AdminPosts = () => {
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+    const indexOfLastUser = currentPage * usersPerPage;
+    const indexOfFirstUser = indexOfLastUser - usersPerPage;
+    const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
-    const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -136,13 +123,12 @@ const AdminPosts = () => {
             transition={{ duration: 0.5 }}
             className="min-h-screen p-4 md:p-8 bg-white"
         >
-            {/* Delete Confirmation Modal */}
             <Modal show={showDeleteModal} onClose={cancelDelete}>
                 <ModalHeader>Confirm Deletion</ModalHeader>
                 <ModalBody>
                     <div className="space-y-6">
                         <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-                            Are you sure you want to delete this post? This action cannot be undone.
+                            Are you sure you want to delete this user? This action cannot be undone.
                         </p>
                     </div>
                 </ModalBody>
@@ -176,11 +162,18 @@ const AdminPosts = () => {
                             transition={{ duration: 0.5 }}
                             className="text-3xl md:text-4xl font-bold text-[#71BE63] mb-8 text-start"
                         >
-                            Brands Management
+                            Users Management
                         </motion.h1>
-                        <p className="text-gray-600">
-                            {filteredPosts.length} {filteredPosts.length === 1 ? 'brand' : 'brands'} found
-                        </p>
+                        <div className="flex gap-4">
+                            <p className="text-gray-600">
+                                {filteredUsers.length} {filteredUsers.length === 1 ? 'user' : 'users'} found
+                            </p>
+                            {stats && (
+                                <p className="text-gray-600">
+                                    New users this month: {stats.lastMonth}
+                                </p>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
@@ -195,29 +188,16 @@ const AdminPosts = () => {
                             </div>
                             <input
                                 type="text"
-                                placeholder="Search brand..."
+                                placeholder="Search users..."
                                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#71BE63] focus:border-transparent"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </motion.div>
-
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Link
-                                to="/dashboard/create"
-                                className="flex items-center justify-center px-4 py-2 bg-[#71BE63] text-white rounded-lg hover:bg-[#5fa955] transition-colors"
-                            >
-                                <FaPlus className="mr-2" />
-                                New Brand
-                            </Link>
-                        </motion.div>
                     </div>
                 </div>
 
-                {readStatus === 'loading' ? (
+                {authStatus === 'loading' ? (
                     <div className="flex justify-center items-center h-64">
                         <motion.div
                             animate={{ rotate: 360 }}
@@ -236,19 +216,19 @@ const AdminPosts = () => {
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
                                     <th scope="col" className="px-6 py-3">
-                                        Brand Image
+                                        Profile Image
                                     </th>
                                     <th scope="col" className="px-6 py-3">
-                                        Brand Name
+                                        Full Name
                                     </th>
                                     <th scope="col" className="px-6 py-3">
-                                        Description
+                                        Email
                                     </th>
                                     <th scope="col" className="px-6 py-3">
-                                        Category
+                                        Role
                                     </th>
                                     <th scope="col" className="px-6 py-3">
-                                        Updated At
+                                        Created At
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-right">
                                         Actions
@@ -260,20 +240,19 @@ const AdminPosts = () => {
                                 initial="hidden"
                                 animate="visible"
                             >
-                                {currentPosts.length > 0 ? (
-                                    currentPosts.map((post) => (
+                                {currentUsers.length > 0 ? (
+                                    currentUsers.map((user) => (
                                         <motion.tr
-                                            onClick={(e) => handleNavigateToPostPage(post._id, e)}
-                                            key={post._id}
+                                            key={user._id}
                                             variants={itemVariants}
                                             whileHover={{ scale: 1.01, boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }}
                                             className="bg-white hover:bg-gray-50 cursor-pointer"
                                         >
                                             <td className="px-6 py-4">
-                                                {post.brandPicture ? (
+                                                {user.profilePicture ? (
                                                     <motion.img
-                                                        src={post.brandPicture}
-                                                        alt={post.name}
+                                                        src={user.profilePicture}
+                                                        alt={user.fullName}
                                                         className="w-10 h-10 rounded-full object-cover"
                                                         whileHover={{ scale: 1.2 }}
                                                     />
@@ -284,43 +263,37 @@ const AdminPosts = () => {
                                                 )}
                                             </td>
                                             <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                                {post.name}
+                                                {user.fullName || 'N/A'}
                                             </th>
-                                            <td className="px-6 py-4 max-w-[2rem] truncate">
-                                                {post.description}
+                                            <td className="px-6 py-4">
+                                                {user.email}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                                    {post.category || 'Uncategorized'}
+                                                <span className={`text-xs font-medium px-2.5 py-0.5 rounded ${user.isAdmin
+                                                    ? 'bg-purple-100 text-purple-800'
+                                                    : 'bg-blue-100 text-blue-800'
+                                                    }`}>
+                                                    {user.isAdmin ? 'Admin' : 'User'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
-                                                {formatDate(post.updatedAt || post.createdAt || '')}
+                                                {formatDate(user.createdAt || '')}
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex justify-end items-center space-x-2">
-                                                    <motion.div
-                                                        whileHover={{ scale: 1.2 }}
-                                                        whileTap={{ scale: 0.9 }}
-                                                    >
-                                                        <button
-                                                            onClick={(e) => handleNavigateToEditPage(post._id, e)}
-                                                            className="font-bold text-xs text-[#71BE63] p-1 cursor-pointer"
+                                                    {currentUser?._id !== user._id && (
+                                                        <motion.div
+                                                            whileHover={{ scale: 1.2 }}
+                                                            whileTap={{ scale: 0.9 }}
                                                         >
-                                                            Edit
-                                                        </button>
-                                                    </motion.div>
-                                                    <motion.div
-                                                        whileHover={{ scale: 1.2 }}
-                                                        whileTap={{ scale: 0.9 }}
-                                                    >
-                                                        <button
-                                                            onClick={(e) => handleDeleteClick(post._id, e)}
-                                                            className="font-bold text-xs text-[#71BE63] p-1 cursor-pointer"
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </motion.div>
+                                                            <button
+                                                                onClick={(e) => handleDeleteClick(user._id, e)}
+                                                                className="font-bold text-xs text-[#71BE63] p-1 cursor-pointer"
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </motion.div>
+                                                    )}
                                                 </div>
                                             </td>
                                         </motion.tr>
@@ -331,7 +304,7 @@ const AdminPosts = () => {
                                         className="bg-white border-b"
                                     >
                                         <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                                            No posts found
+                                            No users found
                                         </td>
                                     </motion.tr>
                                 )}
@@ -388,4 +361,4 @@ const AdminPosts = () => {
     );
 };
 
-export default AdminPosts;
+export default DashUsers;

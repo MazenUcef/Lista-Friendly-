@@ -30,6 +30,19 @@ interface ReadPostParams {
 }
 
 
+export interface UpdatePostData {
+    postId: string;
+    userId: string;
+    name?: string;
+    description?: string;
+    location?: string;
+    category?: string;
+    socialLinks?: string[];
+    brandPicture?: string;
+    file?: File;
+}
+
+
 export interface Pagination {
     total: number;
     lastMonth: number;
@@ -175,6 +188,52 @@ export const deletePost = createAsyncThunk(
 
 
 
+
+export const updatePost = createAsyncThunk(
+    'post/update',
+    async (postData: UpdatePostData, { rejectWithValue }) => {
+        try {
+            const formData = new FormData();
+
+            // Append required fields
+            if (postData.name) formData.append('name', postData.name);
+            if (postData.description) formData.append('description', postData.description);
+            if (postData.location) formData.append('location', postData.location);
+            if (postData.category) formData.append('category', postData.category);
+            if (postData.socialLinks) {
+                formData.append('socialLinks', JSON.stringify(postData.socialLinks));
+            }
+
+            // Append image if exists
+            if (postData.file) {
+                formData.append('brandPicture', postData.file);
+            } else if (postData.brandPicture) {
+                formData.append('brandPicture', postData.brandPicture);
+            }
+
+            const response = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL}/api/post/update/${postData.postId}/${postData.userId}`,
+                {
+                    credentials: 'include',
+                    method: 'PUT',
+                    body: formData,
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update post');
+            }
+
+            return await response.json();
+        } catch (error: any) {
+            return rejectWithValue(error.message || 'Failed to update post');
+        }
+    }
+);
+
+
+
 const postSlice = createSlice({
     name: 'post',
     initialState,
@@ -237,6 +296,26 @@ const postSlice = createSlice({
                 state.error = action.payload as string;
                 toast.error(action.payload as string);
             })
+
+
+            .addCase(updatePost.pending, (state) => {
+                state.status = 'loading';
+                state.error = null;
+            })
+            .addCase(updatePost.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                // Find and update the post in the state
+                const index = state.posts.findIndex(post => post._id === action.payload.post._id);
+                if (index !== -1) {
+                    state.posts[index] = action.payload.post;
+                }
+                toast.success(action.payload.message);
+            })
+            .addCase(updatePost.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload as string;
+                toast.error(action.payload as string);
+            });
     }
 });
 

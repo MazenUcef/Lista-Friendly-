@@ -16,6 +16,7 @@ export const upload = multer({
 });
 
 router.post('/create', verifyToken, upload.single("brandPicture"), validatePostCreation, PostController.createPost)
+router.put('/update/:postId/:userId', verifyToken, upload.single("brandPicture"), validatePostCreation, PostController.updatePost)
 router.get('/read', PostController.readPosts)
 router.delete('/delete/:postId/:userId', verifyToken, PostController.deletePost)
 router.post('/favorites/toggle', verifyToken, FavoriteController.toggleFavorite);
