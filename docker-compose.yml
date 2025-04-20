@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URL=mongodb+srv://mazenafifi1999:mazenafifi1999@listafriendly.scysbxt.mongodb.net/?retryWrites=true&w=majority&appName=listafriendly
+      - PORT=5000
+      - CLIENT_URL=http://localhost:5173
+      - JWT_SECRET=dfwgrhgf5g4f5g4f5g4f5dg
+      - NODE_ENV=production
+      - CLOUDINARY_CLOUD_NAME=mazenafifi1999
+      - CLOUDINARY_API_KEY=869828319192761
+      - CLOUDINARY_API_SECRET=HP5cmxfYlfBX7iIAg-8vFBRg9nw
+    restart: unless-stopped
+
+  frontend:
+    build: ./client
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

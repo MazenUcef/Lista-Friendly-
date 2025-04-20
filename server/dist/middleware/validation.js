@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validatePostUpdate = exports.validatePostCreation = exports.validateSignin = exports.validateUpdate = exports.validateSignup = void 0;
+exports.validateComment = exports.validatePostUpdate = exports.validatePostCreation = exports.validateSignin = exports.validateUpdate = exports.validateSignup = void 0;
 const express_validator_1 = require("express-validator");
 const handleValidationErrors = (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
@@ -73,31 +73,9 @@ exports.validatePostCreation = [
         .notEmpty().withMessage('Location is required')
         .isString().withMessage('Location must be a string'),
     (0, express_validator_1.body)('socialLinks')
-        .custom((value) => {
-        // Handle both stringified array and actual array
-        let links;
-        if (typeof value === 'string') {
-            try {
-                links = JSON.parse(value);
-            }
-            catch (_a) {
-                links = [value]; // Fallback to single URL
-            }
-        }
-        else if (Array.isArray(value)) {
-            links = value;
-        }
-        else {
-            return false;
-        }
-        // Filter out empty strings
-        links = links.filter(link => link && link.trim());
-        if (links.length === 0)
-            return false;
-        const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/;
-        return links.every(link => urlRegex.test(link));
-    })
-        .withMessage('Provide at least one valid URL (include http:// or https://)'),
+        .trim()
+        .notEmpty().withMessage('Location is required')
+        .isString().withMessage('Location must be a string'),
     (0, express_validator_1.body)('brandPicture')
         .optional()
         .isURL().withMessage('Brand picture must be a valid URL'),
@@ -131,5 +109,13 @@ exports.validatePostUpdate = [
     (0, express_validator_1.body)('brandPicture')
         .optional()
         .isURL().withMessage('Brand picture must be a valid URL'),
+    handleValidationErrors
+];
+exports.validateComment = [
+    (0, express_validator_1.body)('rating')
+        .notEmpty().withMessage('Rating is required')
+        .isInt({ min: 1, max: 5 }).withMessage('Rating must be an integer between 1 and 5'),
+    (0, express_validator_1.body)('comment')
+        .notEmpty().withMessage('Comment is required'),
     handleValidationErrors
 ];

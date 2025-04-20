@@ -19,7 +19,9 @@ exports.upload = (0, multer_1.default)({
     },
 });
 router.post('/create', verifyUser_1.verifyToken, exports.upload.single("brandPicture"), validation_1.validatePostCreation, PostController_1.default.createPost);
+router.put('/update/:postId/:userId', verifyUser_1.verifyToken, exports.upload.single("brandPicture"), validation_1.validatePostCreation, PostController_1.default.updatePost);
 router.get('/read', PostController_1.default.readPosts);
+router.delete('/delete/:postId/:userId', verifyUser_1.verifyToken, PostController_1.default.deletePost);
 router.post('/favorites/toggle', verifyUser_1.verifyToken, FavoriteController_1.default.toggleFavorite);
 router.get('/favorites', verifyUser_1.verifyToken, FavoriteController_1.default.readdFavorites);
 exports.default = router;

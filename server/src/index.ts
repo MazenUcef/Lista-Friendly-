@@ -33,13 +33,29 @@ app.use(helmet()); // Security headers
 app.use(morgan('dev')); // HTTP request logging
 
 // CORS configuration (more secure)
+
+// Update your allowed origins to include all necessary URLs
+const allowedOrigins = [
+    'http://localhost',         // Production frontend
+    'http://localhost:5173',    // Vite dev server
+    'http://localhost:5000'     // Backend (if needed)
+].filter(Boolean);
+
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 
 // Database connection
 mongoose.set('strictQuery', false);

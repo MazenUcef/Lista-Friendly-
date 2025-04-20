@@ -25,6 +25,7 @@ const AuthRoute_1 = __importDefault(require("./routes/AuthRoute"));
 const UserRoute_1 = __importDefault(require("./routes/UserRoute"));
 const PostsRoute_1 = __importDefault(require("./routes/PostsRoute"));
 const FavsRoute_1 = __importDefault(require("./routes/FavsRoute"));
+const CommentRoute_1 = __importDefault(require("./routes/CommentRoute"));
 const cloudinary_1 = require("cloudinary");
 const app = (0, express_1.default)();
 // Configuration validation
@@ -41,8 +42,24 @@ app.use((0, cookie_parser_1.default)());
 app.use((0, helmet_1.default)()); // Security headers
 app.use((0, morgan_1.default)('dev')); // HTTP request logging
 // CORS configuration (more secure)
+// Update your allowed origins to include all necessary URLs
+const allowedOrigins = [
+    'http://localhost', // Production frontend
+    'http://localhost:5173', // Vite dev server
+    'http://localhost:5000' // Backend (if needed)
+].filter(Boolean);
 app.use((0, cors_1.default)({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin)
+            return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -68,6 +85,7 @@ app.use('/api/auth', AuthRoute_1.default);
 app.use('/api/user', UserRoute_1.default);
 app.use('/api/post', PostsRoute_1.default);
 app.use('/api/favorites', FavsRoute_1.default);
+app.use('/api/comments', CommentRoute_1.default);
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'UP' });

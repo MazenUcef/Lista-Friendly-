@@ -20,4 +20,6 @@ exports.upload = (0, multer_1.default)({
 router.post("/signout", UserController_1.default.Signout);
 router.put("/update/:userId", verifyUser_1.verifyToken, exports.upload.single("profilePicture"), validation_1.validateUpdate, UserController_1.default.UpdateUser);
 router.delete("/delete/:userId", verifyUser_1.verifyToken, UserController_1.default.DeleteUser);
+router.get('/getUser', verifyUser_1.verifyToken, UserController_1.default.GetUsers);
+router.delete('/admin-delete/:userId', verifyUser_1.verifyToken, UserController_1.default.DeleteUsers);
 exports.default = router;

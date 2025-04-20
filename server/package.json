@@ -8,6 +8,12 @@
     "build": "rm -rf dist && tsc",
     "build:watch": "tsc --watch"
   },
+  "_moduleAliases": {
+    "@": "dist",
+    "@controllers": "dist/controllers",
+    "@models": "dist/models",
+    "@routes": "dist/routes"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

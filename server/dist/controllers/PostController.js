@@ -153,6 +153,125 @@ const readPosts = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         next(error);
     }
 });
+const deletePost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { postId, userId } = req.params;
+    // 2. Authorization - more explicit separation
+    if (!req.user) {
+        res.status(401).json({
+            success: false,
+            message: "Not authenticated"
+        });
+        return;
+    }
+    if (!req.user.isAdmin && req.user.id !== userId) {
+        res.status(403).json({
+            success: false,
+            message: "Unauthorized - You can only delete your own posts unless you're an admin"
+        });
+        return;
+    }
+    try {
+        // 3. Check if post exists first
+        const post = yield post_modal_1.default.findById(postId);
+        if (!post) {
+            res.status(404).json({
+                success: false,
+                message: "Post not found"
+            });
+            return;
+        }
+        // 4. Verify post ownership if not admin
+        if (!req.user.isAdmin && post.userId.toString() !== req.user.id) {
+            res.status(403).json({
+                success: false,
+                message: "Unauthorized - This post doesn't belong to you"
+            });
+            return;
+        }
+        // 5. Perform deletion
+        yield post_modal_1.default.findByIdAndDelete(postId);
+        // 7. Success response
+        res.status(204).json({
+            success: true,
+            message: "Post deleted successfully"
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+const updatePost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const { postId, userId } = req.params;
+        // Authorization check - user must be authenticated
+        if (!req.user) {
+            res.status(401).json({
+                success: false,
+                message: "Not authenticated"
+            });
+            return;
+        }
+        // Check if the requesting user matches the userId parameter or is admin
+        if (req.user.id !== userId && !req.user.isAdmin) {
+            res.status(403).json({
+                success: false,
+                message: "Unauthorized - You can only update your own posts"
+            });
+            return;
+        }
+        // Check if post exists
+        const existingPost = yield post_modal_1.default.findById(postId);
+        if (!existingPost) {
+            res.status(404).json({
+                success: false,
+                message: "Post not found"
+            });
+            return;
+        }
+        // Verify post ownership if not admin
+        if (!req.user.isAdmin && existingPost.userId.toString() !== req.user.id) {
+            res.status(403).json({
+                success: false,
+                message: "Unauthorized - This post doesn't belong to you"
+            });
+            return;
+        }
+        // Handle image upload if exists
+        let brandPictureUrl = existingPost.brandPicture;
+        if (req.file) {
+            brandPictureUrl = yield uploadImage(req.file);
+        }
+        // Prepare update data
+        const updateData = Object.assign(Object.assign({}, req.body), { brandPicture: brandPictureUrl });
+        // Generate new slug if name is being updated
+        if (req.body.name) {
+            const slug = req.body.name
+                .split(' ')
+                .join('-')
+                .toLowerCase()
+                .replace(/[^a-zA-Z0-9-]/g, '');
+            updateData.slug = slug;
+        }
+        // Update the post
+        const updatedPost = yield post_modal_1.default.findByIdAndUpdate(postId, { $set: updateData }, { new: true }).select('-__v'); // Exclude __v field
+        res.status(200).json({
+            success: true,
+            message: "Post updated successfully",
+            post: updatedPost
+        });
+    }
+    catch (error) {
+        if (error.code === 11000 && ((_a = error.keyPattern) === null || _a === void 0 ? void 0 : _a.slug)) {
+            res.status(400).json({
+                success: false,
+                message: "A post with this name already exists"
+            });
+            return;
+        }
+        next(error);
+    }
+});
 const uploadImage = (file) => __awaiter(void 0, void 0, void 0, function* () {
     const image = file;
     const base64Image = Buffer.from(image.buffer).toString("base64");
@@ -162,5 +281,7 @@ const uploadImage = (file) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.default = {
     createPost,
-    readPosts
+    readPosts,
+    deletePost,
+    updatePost
 };
