@@ -80,6 +80,7 @@ const initialState: PostState = {
     status: "idle",
     error: null
 };
+const token = localStorage.getItem('token')
 
 export const createPost = createAsyncThunk(
     'post/create',
@@ -103,6 +104,9 @@ export const createPost = createAsyncThunk(
 
             const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/post/create`, {
                 credentials: 'include',
+                headers: {
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                },
                 method: 'POST',
                 body: formData,
             });
@@ -139,6 +143,9 @@ export const readPosts = createAsyncThunk(
 
             const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/post/read?${query.toString()}`, {
                 credentials: 'include',
+                headers: {
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                },
                 method: 'GET',
             });
 
@@ -166,6 +173,7 @@ export const deletePost = createAsyncThunk(
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                 },
             });
 
@@ -216,6 +224,9 @@ export const updatePost = createAsyncThunk(
                 {
                     credentials: 'include',
                     method: 'PUT',
+                    headers:{
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                    },
                     body: formData,
                 }
             );

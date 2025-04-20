@@ -34,7 +34,7 @@ interface ToggleFavoriteResponse {
     postId: string;
     post?: Post;
 }
-
+const token = localStorage.getItem('token')
 export const toggleFavorite = createAsyncThunk(
     'favorite/toggle',
     async (postId: string, { rejectWithValue }) => {
@@ -44,6 +44,7 @@ export const toggleFavorite = createAsyncThunk(
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                 },
                 body: JSON.stringify({ postId })
             });
@@ -70,6 +71,9 @@ export const readFavorites = createAsyncThunk(
 
             const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/favorites/read?${query.toString()}`, {
                 credentials: 'include',
+                headers: {
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                },
                 method: 'GET',
             });
 
