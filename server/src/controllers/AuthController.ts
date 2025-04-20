@@ -76,9 +76,6 @@ const Signin = async (req: Request, res: Response, next: NextFunction) => {
         // 7. Secure cookie settings
         res.cookie('access_token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 86400000 // 1 day in ms
         }).status(200).json({
             user: userWithoutPassword,
             message: "Sign In successfully"

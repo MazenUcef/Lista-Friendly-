@@ -96,8 +96,6 @@ const DeleteUser = async (req: Request, res: Response, next: NextFunction) => {
         // 4. Clear authentication cookies/tokens if needed
         res.clearCookie('access_token', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
         });
 
         // 5. Return success response
