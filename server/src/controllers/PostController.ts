@@ -15,6 +15,13 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
             return
         }
 
+        let socialLinks = [];
+        if (req.body.socialLinks) {
+            socialLinks = Array.isArray(req.body.socialLinks)
+                ? req.body.socialLinks
+                : JSON.parse(req.body.socialLinks);
+        }
+
         // Generate slug
         const slug = req.body.name
             .split(' ')
@@ -37,7 +44,7 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
             category: req.body.category || 'uncategorized',
             description: req.body.description,
             location: req.body.location,
-            socialLinks: req.body.socialLinks,
+            socialLinks: socialLinks,
             brandPicture: brandPictureUrl,
             slug
         });
@@ -261,10 +268,27 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
             brandPictureUrl = await uploadImage(req.file as Express.Multer.File);
         }
 
+        // Parse socialLinks if provided
+        let socialLinks = existingPost.socialLinks;
+        if (req.body.socialLinks) {
+            try {
+                socialLinks = Array.isArray(req.body.socialLinks)
+                    ? req.body.socialLinks
+                    : JSON.parse(req.body.socialLinks);
+            } catch (error) {
+                res.status(400).json({
+                    success: false,
+                    message: "Invalid socialLinks format"
+                });
+                return
+            }
+        }
+
         // Prepare update data
         const updateData: any = {
             ...req.body,
-            brandPicture: brandPictureUrl
+            brandPicture: brandPictureUrl,
+            socialLinks: socialLinks
         };
 
         // Generate new slug if name is being updated

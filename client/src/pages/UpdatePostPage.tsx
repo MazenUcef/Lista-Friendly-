@@ -60,15 +60,23 @@ const UpdatePostPage = () => {
         if (posts.length > 0 && postId) {
             const post = posts.find(p => p._id === postId);
             if (post) {
+                // Initialize with empty array if no social links exist
+                let parsedSocialLinks = [{ id: '', value: '' }];
+
+                if (post.socialLinks && post.socialLinks.length > 0) {
+                    // Directly use the array (no need for JSON.parse)
+                    parsedSocialLinks = post.socialLinks.map((link: string) => ({
+                        id: Math.random().toString(36).substring(2, 9),
+                        value: link
+                    }));
+                }
+
                 reset({
                     name: post.name,
                     description: post.description,
                     location: post.location,
                     category: post.category,
-                    socialLinks: post.socialLinks?.map(link => ({ 
-                        id: Math.random().toString(36).substring(2, 9), 
-                        value: link 
-                    })) || [{ id: '', value: '' }],
+                    socialLinks: parsedSocialLinks.length > 0 ? parsedSocialLinks : [{ id: '', value: '' }],
                     brandPicture: post.brandPicture,
                 });
                 setPreviewImage(post.brandPicture);
@@ -101,6 +109,11 @@ const UpdatePostPage = () => {
         if (!userId || !postId) return;
 
         try {
+            // Filter out empty URLs and extract just the URLs
+            const filteredLinks = data.socialLinks
+                .map(link => link.value)
+                .filter(link => link.trim() !== '');
+
             await updateExistingPost({
                 postId,
                 userId,
@@ -108,7 +121,7 @@ const UpdatePostPage = () => {
                 description: data.description,
                 location: data.location,
                 category: data.category,
-                socialLinks: data.socialLinks.map(link => link.value).filter(link => link.trim() !== ''),
+                socialLinks: filteredLinks, // Send as array directly
                 brandPicture: data.brandPicture,
                 file: file || undefined,
             });
@@ -331,20 +344,15 @@ const UpdatePostPage = () => {
                                     className="flex items-center space-x-2"
                                 >
                                     <Controller
-                                        name={`socialLinks.${index}`}
+                                        name={`socialLinks.${index}.value`}
                                         control={control}
                                         rules={{
-                                            pattern: {
-                                                value: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
-                                                message: "Please enter a valid URL"
-                                            }
+                                            required: "at least one link is required"
                                         }}
                                         render={({ field }) => (
                                             <div className="flex-1">
                                                 <input
                                                     {...field}
-                                                    value={field.value.value} // Bind only the 'value' field
-                                                    onChange={(e) => field.onChange({ ...field.value, value: e.target.value })} // Update the object correctly
                                                     type="url"
                                                     placeholder={`Social link #${index + 1}`}
                                                     className={`w-full px-4 py-2 border ${errors.socialLinks?.[index] ? 'border-red-500' : 'border-gray-300'

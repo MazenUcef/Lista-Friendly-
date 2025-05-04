@@ -90,8 +90,7 @@ export const validatePostCreation: RequestHandler[] = [
 
     body('socialLinks')
         .trim()
-        .notEmpty().withMessage('Location is required')
-        .isString().withMessage('Location must be a string'),
+        .notEmpty().withMessage('Social Link is required'),
 
     body('brandPicture')
         .optional()

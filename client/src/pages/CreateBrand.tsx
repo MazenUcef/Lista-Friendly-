@@ -77,8 +77,9 @@ const CreateBrand = () => {
 
     const onSubmit = async (data: FormData) => {
         try {
-            // Convert socialLinks object to array of URLs
-            const socialLinksArray = Object.values(data.socialLinks).filter(link => link);
+            const socialLinksArray = Object.entries(data.socialLinks)
+            .filter(([_, value]) => value)
+            .map(([_, value]) => value);
 
             const formData = new FormData();
             formData.append('name', data.name);
